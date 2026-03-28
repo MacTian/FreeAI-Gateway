@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  chat2api:
+    build:
+      context: ..
+      dockerfile: web/Dockerfile
+    ports:
+      - "3012:3000"
+    volumes:
+      - chat2api_data:/root/.chat2api
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+
+volumes:
+  chat2api_data:

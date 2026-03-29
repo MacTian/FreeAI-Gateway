@@ -237,6 +237,16 @@ export function AccountList({
                         <span>请求: {account.requestCount || 0}</span>
                         <span>今日: {formatUsage(account)}</span>
                         {account.lastUsed && <span>{formatDate(account.lastUsed)}</span>}
+                        {(account as any).tokenExpiry && (() => {
+                          const expiry = (account as any).tokenExpiry as number
+                          const now = Date.now()
+                          const diff = expiry - now
+                          if (diff <= 0) return <span className="text-red-400">已过期</span>
+                          const days = Math.floor(diff / 86400000)
+                          const hours = Math.floor((diff % 86400000) / 3600000)
+                          const color = diff < 86400000 * 3 ? 'text-amber-400' : 'text-emerald-400'
+                          return <span className={color}>Token: {days > 0 ? `${days}天` : `${hours}h`}</span>
+                        })()}
                       </div>
                       {account.status === 'error' && account.errorMessage && (
                         <p className="text-[10px] text-red-400 mt-1 truncate">{account.errorMessage}</p>

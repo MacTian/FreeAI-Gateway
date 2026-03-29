@@ -8,12 +8,30 @@ accountsRouter.post('/accounts/validate-token', (_req, res) => {
   res.json({ valid: true })
 })
 
+// 解析 JWT token 的过期时间（不验证签名，仅读取 payload）
+function parseTokenExpiry(credentials: any): number | null {
+  try {
+    const token = credentials?.refresh_token || credentials?.token || credentials?.apiKey || ''
+    if (!token || typeof token !== 'string') return null
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString())
+    // exp 是 Unix 秒时间戳
+    return payload.exp ? payload.exp * 1000 : null
+  } catch { return null }
+}
+
 // GET /accounts?providerId=xxx
 accountsRouter.get('/accounts', (req, res) => {
   try {
     const { providerId } = req.query
     let accounts = store.getAccounts()
     if (providerId) accounts = accounts.filter((a: any) => a.providerId === providerId)
+    // 注入 tokenExpiry 字段（毫秒时间戳）
+    accounts = accounts.map((a: any) => ({
+      ...a,
+      tokenExpiry: parseTokenExpiry(a.credentials)
+    }))
     res.json(accounts)
   } catch (e: any) { res.status(500).json({ error: e.message }) }
 })

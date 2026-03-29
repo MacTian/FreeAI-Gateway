@@ -5,6 +5,7 @@ import { existsSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { configRouter } from './routes/config.js'
+import { getAllSlotStats } from './proxy/concurrencyQueue.js'
 import { providersRouter } from './routes/providers.js'
 import { accountsRouter } from './routes/accounts.js'
 import { proxyRouter } from './routes/proxy.js'
@@ -33,6 +34,16 @@ app.use(cors())
 app.use(express.json())
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: Date.now() }))
+app.get('/healthz', (_req, res) => res.json({ status: 'ok', timestamp: Date.now() }))
+app.get('/api/concurrency', (_req, res) => res.json(getAllSlotStats()))
+app.get('/readyz', (_req, res) => {
+  const providers = store.getProviders().filter((p: any) => p.enabled)
+  const accounts = store.getAccounts().filter((a: any) => a.status === 'active')
+  if (providers.length === 0 || accounts.length === 0) {
+    return res.status(503).json({ status: 'not_ready', reason: 'no active providers or accounts' })
+  }
+  res.json({ status: 'ready', providers: providers.length, accounts: accounts.length })
+})
 
 app.use('/api', appRouter)
 app.use('/api', configRouter)

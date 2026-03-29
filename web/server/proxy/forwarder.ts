@@ -4,6 +4,7 @@ import { store } from '../store.js'
 import type { Provider, Account } from '../types.js'
 import { selectTarget } from './loadbalancer.js'
 import { sessionManager } from './sessionManager.js'
+import { acquireSlot, releaseSlot } from './concurrencyQueue.js'
 
 function shouldDeleteSession(): boolean {
   return sessionManager.shouldDeleteAfterChat()
@@ -159,6 +160,8 @@ export async function forwardRequest(
   })
 
   const startTime = Date.now()
+  // 并发槽位控制：每账号最多3个并发，超出则排队等待
+  await acquireSlot(account.id)
   try {
     store.incrementAccountUsage(account.id)
     const result = await dispatchToProvider(provider, account, req, res, sessionContext)
@@ -172,6 +175,7 @@ export async function forwardRequest(
       duration,
       timestamp: Date.now(),
     })
+    releaseSlot(account.id)
     return result
   } catch (err: any) {
     const duration = Date.now() - startTime
@@ -186,6 +190,7 @@ export async function forwardRequest(
       duration,
       timestamp: Date.now(),
     })
+    releaseSlot(account.id)
     return { success: false, error: err.message, statusCode: 502 }
   }
 }

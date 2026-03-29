@@ -1,5 +1,5 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   AppearanceSettings,
   GeneralSettings,
@@ -8,65 +8,54 @@ import {
   ManagementApiSettings,
 } from '@/components/settings'
 import { Sun, Settings as SettingsIcon, Database, Shield, Key } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+const TABS = [
+  { key: 'appearance', icon: Sun, labelKey: 'settings.appearance' },
+  { key: 'general', icon: SettingsIcon, labelKey: 'settings.generalSettings' },
+  { key: 'data', icon: Database, labelKey: 'settings.data' },
+  { key: 'security', icon: Shield, labelKey: 'settings.security' },
+  { key: 'managementApi', icon: Key, labelKey: 'settings.managementApi.title' },
+]
 
 export function Settings() {
   const { t } = useTranslation()
+  const [active, setActive] = useState('appearance')
 
   return (
-    <div className="min-h-screen bg-av-background t-body p-6 space-y-6">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 right-1/3 w-96 h-96 bg-violet-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl" />
-      </div>
+    <div className="space-y-6">
       <div>
         <h2 className="text-3xl font-light tracking-tight t-heading font-headline">{t('settings.title')}</h2>
         <p className="text-sm t-sub">{t('settings.description')}</p>
       </div>
 
-      <Tabs defaultValue="appearance" className="w-full">
-        <TabsList className="flex flex-wrap gap-1 h-auto p-1.5 glass-card">
-          <TabsTrigger value="appearance" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 t-sub">
-            <Sun className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('settings.appearance')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="general" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 t-sub">
-            <SettingsIcon className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('settings.generalSettings')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="data" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 t-sub">
-            <Database className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('settings.data')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 t-sub">
-            <Shield className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('settings.security')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="managementApi" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 t-sub">
-            <Key className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('settings.managementApi.title')}</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* 导航卡片 */}
+      <div className="glass-card border border-white/5 p-2 flex flex-wrap gap-1">
+        {TABS.map(({ key, icon: Icon, labelKey }) => (
+          <button
+            key={key}
+            onClick={() => setActive(key)}
+            className={cn(
+              'flex items-center gap-2 py-2 px-4 rounded-xl text-sm transition-all',
+              active === key
+                ? 'bg-cyan-400/10 text-cyan-400'
+                : 't-sub hover:bg-white/5 hover:t-body'
+            )}
+          >
+            <Icon className="h-4 w-4" />
+            <span className="hidden sm:inline">{t(labelKey)}</span>
+          </button>
+        ))}
+      </div>
 
-        <TabsContent value="appearance" className="mt-6">
-          <AppearanceSettings />
-        </TabsContent>
-
-        <TabsContent value="general" className="mt-6">
-          <GeneralSettings />
-        </TabsContent>
-
-        <TabsContent value="data" className="mt-6">
-          <DataManagement />
-        </TabsContent>
-
-        <TabsContent value="security" className="mt-6">
-          <SecuritySettings />
-        </TabsContent>
-
-        <TabsContent value="managementApi" className="mt-6">
-          <ManagementApiSettings />
-        </TabsContent>
-      </Tabs>
+      {/* 内容区域 */}
+      <div className="space-y-6">
+        {active === 'appearance' && <AppearanceSettings />}
+        {active === 'general' && <GeneralSettings />}
+        {active === 'data' && <DataManagement />}
+        {active === 'security' && <SecuritySettings />}
+        {active === 'managementApi' && <ManagementApiSettings />}
+      </div>
     </div>
   )
 }

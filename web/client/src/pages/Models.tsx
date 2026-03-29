@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import { ModelList } from '@/components/models'
 import { ModelMappingConfig } from '@/components/proxy'
 import { 
@@ -99,19 +98,19 @@ function ToolUseOverview() {
 </tool_use>`
 
   return (
-    <Card>
-      <CardHeader>
+    <div className="glass-card p-6 border border-white/5">
+      <div className="mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-purple-500/10 rounded-lg">
             <Wrench className="h-5 w-5 text-purple-500" />
           </div>
           <div>
-            <CardTitle className="text-base">{t('prompts.overviewTitle')}</CardTitle>
-            <CardDescription>{t('prompts.overviewDesc')}</CardDescription>
+            <h3 className="text-base font-semibold t-heading">{t('prompts.overviewTitle')}</h3>
+            <p className="text-sm t-sub mt-1">{t('prompts.overviewDesc')}</p>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
+      </div>
+      <div className="space-y-4">
         {isToolUseEnabled ? (
           <Alert>
             <CheckCircle2 className="h-4 w-4" />
@@ -150,17 +149,17 @@ function ToolUseOverview() {
               <SelectItem value="xml">{t('prompts.xmlFormat')}</SelectItem>
             </SelectContent>
           </Select>
-          <div className="p-3 bg-muted/50 rounded-lg border">
+          <div className="p-3 bg-white/5 rounded-lg border">
             <p className="text-xs text-muted-foreground mb-2">
               {localProtocolFormat === 'bracket' ? t('prompts.bracketFormatDesc') : t('prompts.xmlFormatDesc')}
             </p>
-            <pre className="text-xs bg-background p-3 rounded-md overflow-x-auto">
+            <pre className="text-xs bg-transparent p-3 rounded-md overflow-x-auto">
               {localProtocolFormat === 'bracket' ? bracketFormatExample : xmlFormatExample}
             </pre>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 
@@ -221,19 +220,19 @@ function InjectionConfigCard() {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <div className="glass-card p-6 border border-white/5">
+      <div className="mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-500/10 rounded-lg">
             <Settings className="h-5 w-5 text-blue-500" />
           </div>
           <div>
-            <CardTitle className="text-base">{t('prompts.injectionConfig')}</CardTitle>
-            <CardDescription>{t('prompts.configDescription')}</CardDescription>
+            <h3 className="text-base font-semibold t-heading">{t('prompts.injectionConfig')}</h3>
+            <p className="text-sm t-sub mt-1">{t('prompts.configDescription')}</p>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
+      </div>
+      <div className="space-y-4">
         <div className="space-y-2">
           <Label>{t('prompts.injectionMode')}</Label>
           <Select value={localConfig.mode} onValueChange={(v) => handleModeChange(v as InjectionMode)}>
@@ -248,7 +247,7 @@ function InjectionConfigCard() {
               ))}
             </SelectContent>
           </Select>
-          <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
+          <div className="flex items-start gap-2 p-3 bg-white/5 rounded-lg">
             <Info className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
             <p className="text-sm text-muted-foreground">
               {getModeDescription(localConfig.mode)}
@@ -271,8 +270,8 @@ function InjectionConfigCard() {
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 
@@ -334,16 +333,16 @@ function ClientDetectionCard() {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <div className="glass-card p-6 border border-white/5">
+      <div className="mb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-green-500/10 rounded-lg">
               <Shield className="h-5 w-5 text-green-500" />
             </div>
             <div>
-              <CardTitle className="text-base">{t('prompts.clientDetectionTitle')}</CardTitle>
-              <CardDescription>{t('prompts.clientDetectionDesc')}</CardDescription>
+              <h3 className="text-base font-semibold t-heading">{t('prompts.clientDetectionTitle')}</h3>
+              <p className="text-sm t-sub mt-1">{t('prompts.clientDetectionDesc')}</p>
             </div>
           </div>
           <Switch
@@ -351,9 +350,9 @@ function ClientDetectionCard() {
             onCheckedChange={handleClientDetectionChange}
           />
         </div>
-      </CardHeader>
+      </div>
       {localConfig.clientDetection && (
-        <CardContent>
+        <div>
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>{t('prompts.injectionBehavior')}</Label>
@@ -383,7 +382,7 @@ function ClientDetectionCard() {
               {KNOWN_CLIENTS.map(client => (
                 <div
                   key={client.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-white/5 transition-colors"
                 >
                   <div className="flex-1">
                     <div className="font-medium text-sm">{client.name}</div>
@@ -401,9 +400,9 @@ function ClientDetectionCard() {
             </div>
             </div>
           </div>
-        </CardContent>
+        </div>
       )}
-    </Card>
+    </div>
   )
 }
 
@@ -614,19 +613,19 @@ When you receive a tool result, it will be in the format:
   const currentVariant = PROMPT_VARIANTS.find(v => v.id === selectedVariant) || PROMPT_VARIANTS[0]
 
   return (
-    <Card>
-      <CardHeader>
+    <div className="glass-card p-6 border border-white/5">
+      <div className="mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-orange-500/10 rounded-lg">
             <Layers className="h-5 w-5 text-orange-500" />
           </div>
           <div>
-            <CardTitle className="text-base">{t('prompts.variantTitle')}</CardTitle>
-            <CardDescription>{t('prompts.variantDesc')}</CardDescription>
+            <h3 className="text-base font-semibold t-heading">{t('prompts.variantTitle')}</h3>
+            <p className="text-sm t-sub mt-1">{t('prompts.variantDesc')}</p>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
+      </div>
+      <div className="space-y-4">
         <div className="space-y-2">
           <Label>{t('prompts.currentVariant')}</Label>
           <div className="flex gap-2">
@@ -648,7 +647,7 @@ When you receive a tool result, it will be in the format:
           </div>
         </div>
 
-        <div className="p-4 bg-muted/50 rounded-lg border">
+        <div className="p-4 bg-white/5 rounded-lg border">
           <h4 className="text-sm font-medium">{t(`prompts.${currentVariant.name}` as any)}</h4>
           <p className="text-xs text-muted-foreground mt-1">{t(`prompts.${currentVariant.desc}` as any)}</p>
           <div className="mt-3">
@@ -667,7 +666,7 @@ When you receive a tool result, it will be in the format:
             {t('prompts.variantHint')}
           </AlertDescription>
         </Alert>
-      </CardContent>
+      </div>
 
       <Dialog open={showPromptDialog} onOpenChange={setShowPromptDialog}>
         <DialogContent className="max-w-3xl max-h-[80vh]">
@@ -695,7 +694,7 @@ When you receive a tool result, it will be in the format:
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Card>
+    </div>
   )
 }
 
@@ -739,38 +738,39 @@ export function Models() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">{t('models.title')}</h2>
-        <p className="text-muted-foreground">{t('models.description')}</p>
+        <h2 className="text-3xl font-light tracking-tight t-heading font-headline">{t('models.title')}</h2>
+        <p className="text-sm t-sub">{t('models.description')}</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 h-auto">
-          <TabsTrigger value="list" className="flex items-center gap-2 py-2">
-            <Database className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('models.modelList')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="mapping" className="flex items-center gap-2 py-2">
-            <ArrowRight className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('models.modelMapping')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="prompts" className="flex items-center gap-2 py-2">
-            <Wrench className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('models.prompts')}</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* 导航卡片 */}
+      <div className="glass-card border border-white/5 p-2 flex gap-1">
+        {[
+          { key: 'list', icon: Database, label: t('models.modelList') },
+          { key: 'mapping', icon: ArrowRight, label: t('models.modelMapping') },
+          { key: 'prompts', icon: Wrench, label: t('models.prompts') },
+        ].map(({ key, icon: Icon, label }) => (
+          <button
+            key={key}
+            onClick={() => handleTabChange(key)}
+            className={cn(
+              'flex items-center gap-2 py-2 px-4 rounded-xl text-sm transition-all flex-1 justify-center',
+              activeTab === key
+                ? 'bg-cyan-400/10 text-cyan-400'
+                : 't-sub hover:bg-white/5 hover:t-body'
+            )}
+          >
+            <Icon className="h-4 w-4" />
+            <span className="hidden sm:inline">{label}</span>
+          </button>
+        ))}
+      </div>
 
-        <TabsContent value="list" className="mt-6">
-          <ModelList />
-        </TabsContent>
-
-        <TabsContent value="mapping" className="mt-6">
-          <ModelMappingConfig />
-        </TabsContent>
-
-        <TabsContent value="prompts" className="mt-6">
-          <ToolUsePrompts />
-        </TabsContent>
-      </Tabs>
+      {/* 内容区域 */}
+      <div className="space-y-6">
+        {activeTab === 'list' && <ModelList />}
+        {activeTab === 'mapping' && <ModelMappingConfig />}
+        {activeTab === 'prompts' && <ToolUsePrompts />}
+      </div>
     </div>
   )
 }

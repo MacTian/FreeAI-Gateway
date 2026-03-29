@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -265,12 +265,12 @@ export function ModelMappingConfig({ onConfigChange }: ModelMappingConfigProps) 
   const isWildcard = formData.requestModel.includes('*')
 
   return (
-    <Card className={hasChanges ? 'ring-2 ring-amber-500/50' : ''}>
-      <CardHeader>
+    <div className={`glass-card p-6 ${hasChanges ? "ring-2 ring-amber-500/50" : ""}`}>
+      <div className="mb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ArrowRight className="h-5 w-5 text-primary" />
-            <CardTitle>{t('proxy.modelMappingConfig')}</CardTitle>
+            <h3 className="text-base font-semibold t-heading">{t('proxy.modelMappingConfig')}</h3>
           </div>
           {hasChanges && (
             <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/50 gap-1">
@@ -279,9 +279,9 @@ export function ModelMappingConfig({ onConfigChange }: ModelMappingConfigProps) 
             </Badge>
           )}
         </div>
-        <CardDescription>{t('proxy.modelMappingDesc')}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
+        <p className="text-sm t-sub mt-1">{t('proxy.modelMappingDesc')}</p>
+      </div>
+      <div className="space-y-6">
         <div className="flex items-center justify-between gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -380,7 +380,7 @@ export function ModelMappingConfig({ onConfigChange }: ModelMappingConfigProps) 
           </div>
         )}
 
-        <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
+        <div className="flex items-start gap-2 p-3 bg-white/5 rounded-lg">
           <Sparkles className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
           <div className="space-y-1">
             <p className="text-sm font-medium">{t('proxy.wildcardMapping')}</p>
@@ -391,7 +391,7 @@ export function ModelMappingConfig({ onConfigChange }: ModelMappingConfigProps) 
               {WILDCARD_EXAMPLES.map((example) => (
                 <code
                   key={example.pattern}
-                  className="text-xs bg-background px-2 py-1 rounded cursor-pointer hover:bg-background/80"
+                  className="text-xs bg-white/3 px-2 py-1 rounded cursor-pointer hover:bg-white/3/80"
                   title={example.description}
                   onClick={() => setFormData(prev => ({ ...prev, requestModel: example.pattern }))}
                 >
@@ -401,7 +401,7 @@ export function ModelMappingConfig({ onConfigChange }: ModelMappingConfigProps) 
             </div>
           </div>
         </div>
-      </CardContent>
+      </div>
 
       {hasChanges && (
         <div className="border-t bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 p-4 rounded-b-[16px]">
@@ -536,7 +536,7 @@ export function ModelMappingConfig({ onConfigChange }: ModelMappingConfigProps) 
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Card>
+    </div>
   )
 }
 

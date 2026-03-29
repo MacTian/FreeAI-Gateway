@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -247,12 +247,12 @@ export function ProxyConfigForm({ onConfigChange }: ProxyConfigFormProps) {
 
   return (
     <>
-      <Card>
-        <CardHeader>
+      <div className="glass-card p-6 border border-white/5">
+        <div className="mb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Server className="h-5 w-5 text-primary" />
-              <CardTitle>{t('proxy.basicConfig')}</CardTitle>
+              <h3 className="text-base font-semibold t-heading">{t('proxy.basicConfig')}</h3>
             </div>
             {hasChanges && (
               <Badge variant="secondary" className="text-xs">
@@ -260,9 +260,9 @@ export function ProxyConfigForm({ onConfigChange }: ProxyConfigFormProps) {
               </Badge>
             )}
           </div>
-          <CardDescription>{t('proxy.basicConfigDesc')}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+          <p className="text-sm t-sub mt-1">{t('proxy.basicConfigDesc')}</p>
+        </div>
+        <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 items-end">
             <div className="space-y-2">
               <Label>{t('proxy.listeningPort')}</Label>
@@ -353,8 +353,8 @@ export function ProxyConfigForm({ onConfigChange }: ProxyConfigFormProps) {
               {isLoading ? t('proxy.saving') : t('proxy.saveConfig')}
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <Dialog open={showRestartDialog} onOpenChange={setShowRestartDialog}>
         <DialogContent>

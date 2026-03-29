@@ -42,7 +42,9 @@ export function MainLayout() {
         style={{ marginLeft: sidebarCollapsed ? '72px' : '224px' }}
       >
         <main className="flex-1 overflow-auto p-6">
-          <Outlet />
+          <div className="max-w-[1400px] w-full">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -138,12 +138,12 @@ export function LoadBalanceConfig({ onConfigChange }: LoadBalanceConfigProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <div className="glass-card p-6 border border-white/5">
+      <div className="mb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Scale className="h-5 w-5 text-primary" />
-            <CardTitle>{t('proxy.loadBalanceConfig')}</CardTitle>
+            <h3 className="text-base font-semibold t-heading">{t('proxy.loadBalanceConfig')}</h3>
           </div>
           {hasChanges && (
             <Badge variant="secondary" className="text-xs">
@@ -151,9 +151,9 @@ export function LoadBalanceConfig({ onConfigChange }: LoadBalanceConfigProps) {
             </Badge>
           )}
         </div>
-        <CardDescription>{t('proxy.loadBalanceConfigDesc')}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
+        <p className="text-sm t-sub mt-1">{t('proxy.loadBalanceConfigDesc')}</p>
+      </div>
+      <div className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="strategy">{t('proxy.loadBalanceStrategy')}</Label>
           <Select value={selectedStrategy} onValueChange={handleStrategyChange}>
@@ -168,7 +168,7 @@ export function LoadBalanceConfig({ onConfigChange }: LoadBalanceConfigProps) {
               ))}
             </SelectContent>
           </Select>
-          <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
+          <div className="flex items-start gap-2 p-3 bg-white/5 rounded-lg">
             <Info className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
             <p className="text-sm text-muted-foreground">
               {getStrategyDescription(selectedStrategy)}
@@ -249,8 +249,8 @@ export function LoadBalanceConfig({ onConfigChange }: LoadBalanceConfigProps) {
             {isLoading ? t('proxy.saving') : t('proxy.saveConfig')}
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 

@@ -65,7 +65,7 @@ export function Dashboard() {
     : <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></span><span className="text-[10px] t-sub">离线</span></span>
 
   return (
-    <div className="space-y-8 max-w-[1600px] mx-auto">
+    <div className="space-y-8">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -128,12 +128,12 @@ export function AdvancedConfig({ onConfigChange }: AdvancedConfigProps) {
   const isValid = !errors.timeout && !errors.retryCount
 
   return (
-    <Card>
-      <CardHeader>
+    <div className="glass-card p-6 border border-white/5">
+      <div className="mb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Settings2 className="h-5 w-5 text-primary" />
-            <CardTitle>{t('proxy.advancedConfig')}</CardTitle>
+            <h3 className="text-base font-semibold t-heading">{t('proxy.advancedConfig')}</h3>
           </div>
           {hasChanges && (
             <Badge variant="secondary" className="text-xs">
@@ -141,9 +141,9 @@ export function AdvancedConfig({ onConfigChange }: AdvancedConfigProps) {
             </Badge>
           )}
         </div>
-        <CardDescription>{t('proxy.advancedConfigDesc')}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
+        <p className="text-sm t-sub mt-1">{t('proxy.advancedConfigDesc')}</p>
+      </div>
+      <div className="space-y-6">
         <div className="space-y-4">
           <h4 className="text-sm font-medium">{t('proxy.requestConfig')}</h4>
           
@@ -217,8 +217,8 @@ export function AdvancedConfig({ onConfigChange }: AdvancedConfigProps) {
             {isLoading ? t('proxy.saving') : t('proxy.saveConfig')}
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 

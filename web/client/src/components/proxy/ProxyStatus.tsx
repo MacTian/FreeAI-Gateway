@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -157,12 +157,12 @@ export function ProxyStatus({ onStatusChange }: ProxyStatusProps) {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
+      <div className="glass-card p-6 border border-white/5">
+        <div className="mb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Activity className="h-5 w-5 text-primary" />
-              <CardTitle>{t('dashboard.proxyStatus')}</CardTitle>
+              <h3 className="text-base font-semibold t-heading">{t('dashboard.proxyStatus')}</h3>
             </div>
             <div className="flex items-center gap-2">
               <Badge
@@ -191,9 +191,9 @@ export function ProxyStatus({ onStatusChange }: ProxyStatusProps) {
               </Button>
             </div>
           </div>
-          <CardDescription>{t('proxy.description')}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+          <p className="text-sm t-sub mt-1">{t('proxy.description')}</p>
+        </div>
+        <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">{t('dashboard.port')}</p>
@@ -230,26 +230,25 @@ export function ProxyStatus({ onStatusChange }: ProxyStatusProps) {
               </button>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
+      <div className="glass-card p-6 border border-white/5">
+        <div className="mb-4">
           <div className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-primary" />
-            <CardTitle>{t('logs.title')}</CardTitle>
+            <h3 className="text-base font-semibold t-heading">{t('logs.title')}</h3>
           </div>
-          <CardDescription>{t('proxy.description')}</CardDescription>
-        </CardHeader>
-        <CardContent>
+          <p className="text-sm t-sub mt-1">{t('proxy.description')}</p>
+        </div>
+        <div>
           <div className="grid gap-4 md:grid-cols-5">
             {statsCards.map((stat, index) => (
-              <Card
+              <div
                 key={index}
-                hover
-                className="bg-muted/30 border-0 shadow-none"
+                className="glass-card p-4 border border-white/5"
               >
-                <CardContent className="p-4">
+                <div className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="h-8 w-8 rounded-lg bg-[var(--accent-primary)]/10 flex items-center justify-center">
                       <stat.icon className={cn('h-4 w-4', stat.color)} />
@@ -257,8 +256,8 @@ export function ProxyStatus({ onStatusChange }: ProxyStatusProps) {
                   </div>
                   <p className="text-2xl font-bold">{stat.value}</p>
                   <p className="text-xs text-muted-foreground mt-1">{stat.title}</p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
 
@@ -281,7 +280,7 @@ export function ProxyStatus({ onStatusChange }: ProxyStatusProps) {
                         return (
                           <div 
                             key={model} 
-                            className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0"
+                            className="flex items-center justify-between py-1.5 border-b border-white/10/50 last:border-0"
                           >
                             <div className="flex items-center gap-2 min-w-0">
                               <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
@@ -316,7 +315,7 @@ export function ProxyStatus({ onStatusChange }: ProxyStatusProps) {
                         return (
                           <div 
                             key={providerId} 
-                            className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0"
+                            className="flex items-center justify-between py-1.5 border-b border-white/10/50 last:border-0"
                           >
                             <div className="flex items-center gap-2 min-w-0">
                               <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
@@ -336,8 +335,8 @@ export function ProxyStatus({ onStatusChange }: ProxyStatusProps) {
               )}
             </div>
           ) : null}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

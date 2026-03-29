@@ -351,6 +351,14 @@ body {
   box-shadow: inset 0.5px 0.5px 0 0 rgba(255, 255, 255, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   isolation: isolate;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.10);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), inset 0.5px 0.5px 0 0 rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="light"] .glass-card {
@@ -365,23 +373,33 @@ body {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.glass-card-hover:hover {
-  background: var(--glass-bg-hover);
-  border-color: var(--glass-border-hover);
+[data-theme="light"] .glass-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--soft-lg);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.10),
+    inset 0 2px 0 rgba(255, 255, 255, 0.9);
+  border-color: rgba(76, 215, 246, 0.3);
+}
+
+[data-theme="light"] .glass-card::after {
+  background: radial-gradient(circle, rgba(76, 215, 246, 0.06) 0%, transparent 70%);
+}
+
+[data-theme="light"] .glass-card:hover::after {
+  background: radial-gradient(circle, rgba(76, 215, 246, 0.12) 0%, transparent 70%);
+}
+
+.glass-card-hover:hover {
+  transform: translateY(-2px);
 }
 
 [data-theme="dark"] .glass-card-hover:hover {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme="light"] .glass-card-hover:hover {
-  transform: translateY(-3px);
-  box-shadow:
-    0 12px 28px rgba(166, 160, 148, 0.22),
-    inset 0 2px 0 rgba(255, 255, 255, 0.9);
-  border-color: rgba(122, 158, 126, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
 }
 
 .glass-sidebar {

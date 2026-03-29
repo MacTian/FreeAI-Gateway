@@ -3,7 +3,7 @@
  * Displays all accounts under a provider with status and actions
  */
 
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -65,6 +65,7 @@ export function AccountList({
   const [clearingChatsId, setClearingChatsId] = useState<string | null>(null)
   const [showClearChatsDialog, setShowClearChatsDialog] = useState(false)
   const [selectedAccountForClear, setSelectedAccountForClear] = useState<Account | null>(null)
+
 
   const statusConfig: Record<AccountStatus, { 
     labelKey: string
@@ -139,6 +140,21 @@ export function AccountList({
   const activeCount = accounts.filter(a => a.status === 'active').length
   const totalCount = accounts.length
 
+  // 随机光晕颜色（按账号 id 固定，不每次渲染变化）
+  const glowColors = [
+    'rgba(76, 215, 246, 0.18)',   // cyan
+    'rgba(208, 188, 255, 0.18)',  // violet
+    'rgba(52, 211, 153, 0.18)',   // emerald
+    'rgba(251, 191, 36, 0.18)',   // amber
+    'rgba(240, 116, 255, 0.18)',  // pink
+    'rgba(99, 179, 237, 0.18)',   // blue
+  ]
+  const getGlowColor = (id: string) => {
+    let hash = 0
+    for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash)
+    return glowColors[Math.abs(hash) % glowColors.length]
+  }
+
   const formatDate = (timestamp?: number) => {
     if (!timestamp) return '-'
     return new Date(timestamp).toLocaleString('zh-CN', {
@@ -192,13 +208,44 @@ export function AccountList({
             const StatusIcon = config.icon
             const isValidating = validatingIds.has(account.id)
 
+            const glowColor = getGlowColor(account.id)
             return (
               <div
                 key={account.id}
-                className="glass-card glass-card-hover cursor-pointer overflow-hidden"
-               
+                className="glass-card glass-card-hover cursor-pointer overflow-hidden relative"
                 onClick={() => onViewDetail(account)}
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  const x = e.clientX - rect.left
+                  const y = e.clientY - rect.top
+                  const glow = e.currentTarget.querySelector<HTMLDivElement>('.card-glow')
+                  if (glow) {
+                    glow.style.left = `${x - 80}px`
+                    glow.style.top = `${y - 80}px`
+                    glow.style.opacity = '1'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  const glow = e.currentTarget.querySelector<HTMLDivElement>('.card-glow')
+                  if (glow) glow.style.opacity = '0'
+                }}
               >
+                {/* 鼠标跟随光晕 */}
+                <div
+                  className="card-glow"
+                  style={{
+                    position: 'absolute',
+                    width: 160,
+                    height: 160,
+                    borderRadius: '50%',
+                    background: `radial-gradient(circle, ${glowColor} 0%, transparent 70%)`,
+                    filter: 'blur(20px)',
+                    pointerEvents: 'none',
+                    opacity: 0,
+                    transition: 'opacity 0.2s ease',
+                    zIndex: 0,
+                  }}
+                />
                 <div className="p-5 flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1 min-w-0">
                     {/* 状态图标 */}

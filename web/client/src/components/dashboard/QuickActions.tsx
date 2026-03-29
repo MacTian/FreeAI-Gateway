@@ -41,8 +41,8 @@ export function QuickActions({
           className={cn(
             "w-full justify-start",
             proxyRunning 
-              ? "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-950/50 dark:text-white dark:hover:bg-orange-900/50"
-              : "dark:text-white"
+              ? "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-950/50 dark:t-heading dark:hover:bg-orange-900/50"
+              : "dark:t-heading"
           )}
           variant={proxyRunning ? 'secondary' : 'default'}
           onClick={onToggleProxy}

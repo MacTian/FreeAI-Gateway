@@ -266,7 +266,7 @@ export function ProxyConfigForm({ onConfigChange }: ProxyConfigFormProps) {
           <div className="grid gap-4 md:grid-cols-2 items-end">
             <div className="space-y-2">
               <Label>{t('proxy.listeningPort')}</Label>
-              <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-white/10 bg-white/5 text-sm text-slate-400">
+              <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-white/10 bg-white/5 text-sm t-sub">
                 统一端口，无法修改
               </div>
               <p className="text-xs text-muted-foreground">与管理界面共用同一端口</p>

@@ -41,7 +41,7 @@ export function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-12 flex items-center justify-between px-4 bg-[#131b2e]/70 backdrop-blur-[50px] border-b border-white/5">
+    <header className="fixed top-0 left-0 right-0 z-50 h-12 flex items-center justify-between px-4 bg-av-surface-low/70 backdrop-blur-[50px] border-b border-white/5">
       <div className="flex items-center gap-3 no-drag">
         <div className="sidebar-logo-icon">
           <img 

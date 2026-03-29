@@ -1,31 +1,23 @@
+# ---- 构建后端依赖 ----
 FROM node:20-alpine AS server-builder
 WORKDIR /app/server
 COPY web/server/package*.json ./
 RUN npm install
 COPY web/server/ ./
-COPY src/shared/ ../src/shared/
 
-FROM node:20-alpine AS client-builder
-WORKDIR /app/client
-COPY web/client/package*.json ./
-RUN npm install
-COPY web/client/ ./
-RUN npm run build
-
+# ---- 最终镜像 ----
 FROM node:20-alpine
 WORKDIR /app
 
-# Copy server
+# 复制后端（含 node_modules）
 COPY --from=server-builder /app/server ./server
-COPY --from=server-builder /app/src ./src
 
-# Copy built frontend
-COPY --from=client-builder /app/client/dist ./client/dist
-
-# Serve static files from Express
-RUN cd server && npm install
+# 直接复制本地已构建的前端静态文件
+COPY web/client/dist ./client/dist
 
 EXPOSE 3000
+
+ENV NODE_ENV=production
 
 WORKDIR /app/server
 CMD ["node_modules/.bin/tsx", "index.ts"]

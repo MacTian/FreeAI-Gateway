@@ -1,0 +1,24 @@
+# Git
+.git
+.gitignore
+
+# Node modules
+node_modules
+web/client/node_modules
+web/server/node_modules
+
+# Electron 相关
+src/main
+src/renderer
+electron.vite.config.ts
+vite.renderer.config.ts
+tsconfig.node.json
+build/
+
+# 日志和临时文件
+*.log
+.env
+.env.*
+
+# 文档
+docs/

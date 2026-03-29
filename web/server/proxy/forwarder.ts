@@ -3,6 +3,15 @@ import { Readable } from 'stream'
 import { store } from '../store.js'
 import type { Provider, Account } from '../types.js'
 import { selectTarget } from './loadbalancer.js'
+import { sessionManager } from './sessionManager.js'
+
+function shouldDeleteSession(): boolean {
+  return sessionManager.shouldDeleteAfterChat()
+}
+
+function isMultiTurnEnabled(): boolean {
+  return sessionManager.isMultiTurnEnabled()
+}
 
 // 收集 SSE 流中的所有 chunks，拼成一个完整的 chat.completion 对象
 async function collectSSEToCompletion(stream: Readable, model: string): Promise<any> {
@@ -142,10 +151,17 @@ export async function forwardRequest(
 
   const { provider, account } = target
 
+  // 获取或创建会话上下文（单轮返回空 sessionId，多轮复用已有会话）
+  const sessionContext = sessionManager.getOrCreateSession({
+    providerId: provider.id,
+    accountId: account.id,
+    model: req.model,
+  })
+
   const startTime = Date.now()
   try {
     store.incrementAccountUsage(account.id)
-    const result = await dispatchToProvider(provider, account, req, res)
+    const result = await dispatchToProvider(provider, account, req, res, sessionContext)
     const duration = Date.now() - startTime
     store.addRequestLog({
       id: crypto.randomUUID(),
@@ -178,10 +194,14 @@ async function dispatchToProvider(
   provider: Provider,
   account: Account,
   req: ChatCompletionRequest,
-  res: any
+  res: any,
+  sessionContext?: any
 ): Promise<ForwardResult> {
   const vendor = getProviderVendor(provider)
   const adps = await getAdapters()
+  const multiTurn = isMultiTurnEnabled()
+  const deleteAfter = shouldDeleteSession()
+  const existingProviderSessionId = sessionContext?.providerSessionId || ''
 
   try {
     switch (vendor) {
@@ -189,7 +209,10 @@ async function dispatchToProvider(
         const { GLMAdapter, GLMStreamHandler } = adps
         if (!GLMAdapter) break
         const adapter = new GLMAdapter(provider, account)
-        const { response } = await adapter.chatCompletion(req)
+        const glmReq = multiTurn && existingProviderSessionId
+          ? { ...req, conversationId: existingProviderSessionId }
+          : req
+        const { response } = await adapter.chatCompletion(glmReq)
         const handler = new GLMStreamHandler(req.model)
         if (req.stream) {
           const transStream = await handler.handleStream(response.data)
@@ -203,17 +226,22 @@ async function dispatchToProvider(
             transStream.on('error', (e) => { console.error('[Forwarder] Stream error:', e.message); resolve() })
             res.on('close', resolve)
           })
-          // 自动清理 GLM 会话
           const convId = handler.getConversationId()
-          if (convId) adapter.deleteConversation(convId).catch(() => {})
+          if (multiTurn && convId && sessionContext?.sessionId) {
+            sessionManager.updateProviderSessionId(sessionContext.sessionId, convId)
+          } else if (deleteAfter && convId) {
+            adapter.deleteConversation(convId).catch(() => {})
+          }
           return { success: true }
         } else {
-          // 非流式模式：先经过 handleStream 转换（捕获图片等内容），再收集 SSE chunks 拼成完整结果
           const transStream = await handler.handleStream(response.data)
           const data = await collectSSEToCompletion(transStream, req.model)
-          // 自动清理 GLM 会话，防止 GLM 页面积累历史记录
           const convId = handler.getConversationId()
-          if (convId) adapter.deleteConversation(convId).catch(() => {})
+          if (multiTurn && convId && sessionContext?.sessionId) {
+            sessionManager.updateProviderSessionId(sessionContext.sessionId, convId)
+          } else if (deleteAfter && convId) {
+            adapter.deleteConversation(convId).catch(() => {})
+          }
           return { success: true, data }
         }
       }
@@ -221,7 +249,10 @@ async function dispatchToProvider(
         const { DeepSeekAdapter, DeepSeekStreamHandler } = adps
         if (!DeepSeekAdapter) break
         const adapter = new DeepSeekAdapter(provider, account)
-        const { response, sessionId } = await adapter.chatCompletion(req)
+        const deepseekReq = multiTurn && existingProviderSessionId
+          ? { ...req, sessionId: existingProviderSessionId }
+          : req
+        const { response, sessionId } = await adapter.chatCompletion(deepseekReq)
         const handler = new DeepSeekStreamHandler(req.model)
         if (req.stream) {
           const transStream = await handler.handleStream(response.data)
@@ -235,11 +266,11 @@ async function dispatchToProvider(
             transStream.on('error', (e) => { console.error('[Forwarder] Stream error:', e.message); resolve() })
             res.on('close', resolve)
           })
-          if (sessionId) adapter.deleteSession(sessionId).catch(() => {})
+          if (multiTurn && sessionId && sessionContext?.sessionId) { sessionManager.updateProviderSessionId(sessionContext.sessionId, sessionId) } else if (deleteAfter && sessionId) { adapter.deleteSession(sessionId).catch(() => {}) }
           return { success: true }
         } else {
           const data = await handler.handleNonStream(response.data)
-          if (sessionId) adapter.deleteSession(sessionId).catch(() => {})
+          if (multiTurn && sessionId && sessionContext?.sessionId) { sessionManager.updateProviderSessionId(sessionContext.sessionId, sessionId) } else if (deleteAfter && sessionId) { adapter.deleteSession(sessionId).catch(() => {}) }
           return { success: true, data }
         }
       }
@@ -247,7 +278,10 @@ async function dispatchToProvider(
         const { KimiAdapter, KimiStreamHandler } = adps
         if (!KimiAdapter) break
         const adapter = new KimiAdapter(provider, account)
-        const { response, conversationId } = await adapter.chatCompletion(req)
+        const kimiReq = multiTurn && existingProviderSessionId
+          ? { ...req, conversationId: existingProviderSessionId }
+          : req
+        const { response, conversationId } = await adapter.chatCompletion(kimiReq)
         const handler = new KimiStreamHandler(req.model, conversationId)
         if (req.stream) {
           const transStream = await handler.handleStream(response.data)
@@ -261,11 +295,11 @@ async function dispatchToProvider(
             transStream.on('error', (e) => { console.error('[Forwarder] Stream error:', e.message); resolve() })
             res.on('close', resolve)
           })
-          if (conversationId) adapter.deleteConversation(conversationId).catch(() => {})
+          if (multiTurn && conversationId && sessionContext?.sessionId) { sessionManager.updateProviderSessionId(sessionContext.sessionId, conversationId) } else if (deleteAfter && conversationId) { adapter.deleteConversation(conversationId).catch(() => {}) }
           return { success: true }
         } else {
           const data = await handler.handleNonStream(response.data)
-          if (conversationId) adapter.deleteConversation(conversationId).catch(() => {})
+          if (multiTurn && conversationId && sessionContext?.sessionId) { sessionManager.updateProviderSessionId(sessionContext.sessionId, conversationId) } else if (deleteAfter && conversationId) { adapter.deleteConversation(conversationId).catch(() => {}) }
           return { success: true, data }
         }
       }
@@ -318,14 +352,14 @@ async function dispatchToProvider(
             res.on('close', resolve)
           })
           const sessionId = handler.getSessionId()
-          if (sessionId) adapter.deleteSession(sessionId).catch(() => {})
+          if (multiTurn && sessionId && sessionContext?.sessionId) { sessionManager.updateProviderSessionId(sessionContext.sessionId, sessionId) } else if (deleteAfter && sessionId) { adapter.deleteSession(sessionId).catch(() => {}) }
           return { success: true }
         } else {
           // 非流式模式：先经过 handleStream 转换，再收集 SSE chunks
           const transStream = await handler.handleStream(result.response.data, result.response)
           const data = await collectSSEToCompletion(transStream, req.model)
           const sessionId = handler.getSessionId()
-          if (sessionId) adapter.deleteSession(sessionId).catch(() => {})
+          if (multiTurn && sessionId && sessionContext?.sessionId) { sessionManager.updateProviderSessionId(sessionContext.sessionId, sessionId) } else if (deleteAfter && sessionId) { adapter.deleteSession(sessionId).catch(() => {}) }
           return { success: true, data }
         }
       }
@@ -348,11 +382,11 @@ async function dispatchToProvider(
             transStream.on('error', (e) => { console.error('[Forwarder] Stream error:', e.message); resolve() })
             res.on('close', resolve)
           })
-          if (chatId) adapter.deleteChat(chatId).catch(() => {})
+          if (multiTurn && chatId && sessionContext?.sessionId) { sessionManager.updateProviderSessionId(sessionContext.sessionId, chatId) } else if (deleteAfter && chatId) { adapter.deleteChat(chatId).catch(() => {}) }
           return { success: true }
         } else {
           const data = await handler.handleNonStream(response.data)
-          if (chatId) adapter.deleteChat(chatId).catch(() => {})
+          if (multiTurn && chatId && sessionContext?.sessionId) { sessionManager.updateProviderSessionId(sessionContext.sessionId, chatId) } else if (deleteAfter && chatId) { adapter.deleteChat(chatId).catch(() => {}) }
           return { success: true, data }
         }
       }
@@ -374,11 +408,11 @@ async function dispatchToProvider(
             transStream.on('error', (e) => { console.error('[Forwarder] Stream error:', e.message); resolve() })
             res.on('close', resolve)
           })
-          if (sessionId) adapter.deleteSession(sessionId).catch(() => {})
+          if (multiTurn && sessionId && sessionContext?.sessionId) { sessionManager.updateProviderSessionId(sessionContext.sessionId, sessionId) } else if (deleteAfter && sessionId) { adapter.deleteSession(sessionId).catch(() => {}) }
           return { success: true }
         } else {
           const data = await handler.handleNonStream(stream)
-          if (sessionId) adapter.deleteSession(sessionId).catch(() => {})
+          if (multiTurn && sessionId && sessionContext?.sessionId) { sessionManager.updateProviderSessionId(sessionContext.sessionId, sessionId) } else if (deleteAfter && sessionId) { adapter.deleteSession(sessionId).catch(() => {}) }
           return { success: true, data }
         }
       }

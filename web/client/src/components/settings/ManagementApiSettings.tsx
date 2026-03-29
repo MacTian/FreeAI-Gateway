@@ -119,8 +119,8 @@ export function ManagementApiSettings() {
     <div className="space-y-6">
       <div>
         <div className="mb-4">
-          <h4 className="text-sm font-semibold text-white mb-1 flex items-center gap-2"><Key className="h-4 w-4 text-cyan-400" />{t('settings.managementApi.title')}</h4>
-          <p className="text-xs text-slate-400">{t('settings.managementApi.description')}</p>
+          <h4 className="text-sm font-semibold t-heading mb-1 flex items-center gap-2"><Key className="h-4 w-4 text-cyan-400" />{t('settings.managementApi.title')}</h4>
+          <p className="text-xs t-sub">{t('settings.managementApi.description')}</p>
         </div>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -151,8 +151,8 @@ export function ManagementApiSettings() {
         <>
           <div>
             <div className="mb-4">
-              <h4 className="text-sm font-semibold text-white mb-1">{t('settings.managementApi.secretKey')}</h4>
-              <p className="text-xs text-slate-400">{t('settings.managementApi.secretKeyDescription')}</p>
+              <h4 className="text-sm font-semibold t-heading mb-1">{t('settings.managementApi.secretKey')}</h4>
+              <p className="text-xs t-sub">{t('settings.managementApi.secretKeyDescription')}</p>
             </div>
             <div className="space-y-4">
               <Alert>
@@ -200,8 +200,8 @@ export function ManagementApiSettings() {
 
           <div>
             <div className="mb-4">
-              <h4 className="text-sm font-semibold text-white mb-1 flex items-center gap-2"><Terminal className="h-4 w-4 text-cyan-400" />{t('settings.managementApi.apiDocumentation')}</h4>
-              <p className="text-xs text-slate-400">{t('settings.managementApi.exampleUsage')}</p>
+              <h4 className="text-sm font-semibold t-heading mb-1 flex items-center gap-2"><Terminal className="h-4 w-4 text-cyan-400" />{t('settings.managementApi.apiDocumentation')}</h4>
+              <p className="text-xs t-sub">{t('settings.managementApi.exampleUsage')}</p>
             </div>
             <div className="space-y-4">
               <div className="space-y-2">

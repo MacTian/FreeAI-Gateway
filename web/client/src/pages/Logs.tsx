@@ -28,20 +28,20 @@ export default function LogsPage() {
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-2">
           <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-cyan-400">实时监控</div>
-          <h2 className="text-3xl font-light tracking-tight text-white font-headline">{t('logs.title')}</h2>
-          <p className="text-slate-400 text-sm max-w-md leading-relaxed">{t('logs.description')}</p>
+          <h2 className="text-3xl font-light tracking-tight t-heading font-headline">{t('logs.title')}</h2>
+          <p className="t-sub text-sm max-w-md leading-relaxed">{t('logs.description')}</p>
         </div>
         {/* 迷你趋势折线图卡片 */}
-        <div className="bg-[#131b2e]/60 backdrop-blur-[40px] p-6 rounded-xl border border-white/5 flex flex-col justify-between" style={{boxShadow:'inset 0.5px 0.5px 0 0 rgba(255,255,255,0.1)'}}>
+        <div className="glass-card p-6 rounded-xl flex flex-col justify-between">
           <div className="flex justify-between items-center mb-3">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">请求趋势</span>
+            <span className="text-xs font-bold t-sub uppercase tracking-wider">请求趋势</span>
             <span className="text-xs text-cyan-400 font-medium">{stats.successRate}% 成功率</span>
           </div>
           <div className="h-16">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trendData} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#1e2740', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', fontSize: '11px', color: '#dbe2fd' }}
+                  contentStyle={{ backgroundColor: "var(--av-dropdown-bg)", border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', fontSize: '11px', color: 'var(--av-text-primary)' }}
                   labelFormatter={(label) => label}
                   formatter={(value: any, name: string) => [value, name === 'total' ? '总计' : name === 'success' ? '成功' : '失败']}
                 />
@@ -51,7 +51,7 @@ export default function LogsPage() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex justify-between mt-2 text-[10px] text-slate-500">
+          <div className="flex justify-between mt-2 text-[10px] t-hint">
             <span>总计 {stats.total}</span>
             <span className="text-emerald-400">{stats.success} 成功</span>
             <span className="text-red-400">{stats.error} 失败</span>

@@ -14,21 +14,21 @@ export function AppearanceSettings() {
   return (
     <div className="space-y-4">
       {/* 主题 */}
-      <div className="bg-[#131b2e]/60 backdrop-blur-[40px] rounded-2xl p-6 border border-white/5" style={{boxShadow:'inset 0.5px 0.5px 0 0 rgba(255,255,255,0.05)'}}>
+      <div className="glass-card p-6 border border-white/5">
         <div className="flex items-center gap-2 mb-6">
           <Sun className="h-5 w-5 text-cyan-400" />
-          <h3 className="text-base font-semibold text-white">{t('settings.theme')}</h3>
+          <h3 className="text-base font-semibold t-heading">{t('settings.theme')}</h3>
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold text-white">{t('settings.theme')}</p>
-            <p className="text-xs text-slate-400 mt-1">根据环境光线自动调节或手动选择</p>
+            <p className="text-sm font-semibold t-heading">{t('settings.theme')}</p>
+            <p className="text-xs t-sub mt-1">根据环境光线自动调节或手动选择</p>
           </div>
-          <div className="flex bg-[#0b1326]/60 p-1 rounded-xl border border-white/5">
+          <div className="flex bg-av-background/60 p-1 rounded-xl border border-white/5">
             <button
               onClick={() => setTheme('dark' as Theme)}
               className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                theme === 'dark' ? 'bg-cyan-400/20 text-cyan-400' : 'text-slate-400 hover:text-white'
+                theme === 'dark' ? 'bg-cyan-400/20 text-cyan-400' : 't-sub hover:t-heading'
               }`}
             >
               <Moon className="h-3.5 w-3.5 inline mr-1" />
@@ -37,7 +37,7 @@ export function AppearanceSettings() {
             <button
               onClick={() => setTheme('light' as Theme)}
               className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                theme === 'light' ? 'bg-cyan-400/20 text-cyan-400' : 'text-slate-400 hover:text-white'
+                theme === 'light' ? 'bg-cyan-400/20 text-cyan-400' : 't-sub hover:t-heading'
               }`}
             >
               <Sun className="h-3.5 w-3.5 inline mr-1" />
@@ -48,38 +48,38 @@ export function AppearanceSettings() {
       </div>
 
       {/* 语言 */}
-      <div className="bg-[#131b2e]/60 backdrop-blur-[40px] rounded-2xl p-6 border border-white/5" style={{boxShadow:'inset 0.5px 0.5px 0 0 rgba(255,255,255,0.05)'}}>
+      <div className="glass-card p-6 border border-white/5">
         <div className="flex items-center gap-2 mb-6">
           <Languages className="h-5 w-5 text-cyan-400" />
-          <h3 className="text-base font-semibold text-white">{t('settings.language')}</h3>
+          <h3 className="text-base font-semibold t-heading">{t('settings.language')}</h3>
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold text-white">{t('settings.language')}</p>
-            <p className="text-xs text-slate-400 mt-1">{t('settings.languageHelp')}</p>
+            <p className="text-sm font-semibold t-heading">{t('settings.language')}</p>
+            <p className="text-xs t-sub mt-1">{t('settings.languageHelp')}</p>
           </div>
           <Select value={language} onValueChange={(value) => setLanguage(value as Language)}>
-            <SelectTrigger className="w-[160px] bg-[#0b1326] border-white/10 text-cyan-400">
+            <SelectTrigger className="w-[160px] bg-av-background border-white/10 text-cyan-400">
               <SelectValue placeholder={t('settings.language')} />
             </SelectTrigger>
-            <SelectContent className="bg-[#1e2740] border-white/10">
-              <SelectItem value="zh-CN" className="text-white">{t('settings.languageZh')}</SelectItem>
-              <SelectItem value="en-US" className="text-white">{t('settings.languageEn')}</SelectItem>
+            <SelectContent className="bg-av-surface-high border-white/10">
+              <SelectItem value="zh-CN" className="t-heading">{t('settings.languageZh')}</SelectItem>
+              <SelectItem value="en-US" className="t-heading">{t('settings.languageEn')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       {/* 侧边栏 */}
-      <div className="bg-[#131b2e]/60 backdrop-blur-[40px] rounded-2xl p-6 border border-white/5" style={{boxShadow:'inset 0.5px 0.5px 0 0 rgba(255,255,255,0.05)'}}>
+      <div className="glass-card p-6 border border-white/5">
         <div className="flex items-center gap-2 mb-6">
           <PanelLeft className="h-5 w-5 text-cyan-400" />
-          <h3 className="text-base font-semibold text-white">{t('settings.sidebar')}</h3>
+          <h3 className="text-base font-semibold t-heading">{t('settings.sidebar')}</h3>
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <Label className="text-[#dbe2fd] text-sm font-medium">{t('settings.sidebarCollapsed')}</Label>
-            <p className="text-xs text-slate-400 mt-1">{t('settings.sidebarCollapsedHelp')}</p>
+            <Label className="t-body text-sm font-medium">{t('settings.sidebarCollapsed')}</Label>
+            <p className="text-xs t-sub mt-1">{t('settings.sidebarCollapsedHelp')}</p>
           </div>
           <Switch checked={sidebarCollapsed} onCheckedChange={setSidebarCollapsed} />
         </div>

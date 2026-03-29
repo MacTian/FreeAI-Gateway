@@ -80,7 +80,7 @@ export function ProviderCard({
       )
     }
     return (
-      <span className="flex items-center gap-1.5 text-xs text-slate-400 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+      <span className="flex items-center gap-1.5 text-xs t-sub bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
         <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
         未知
       </span>
@@ -90,7 +90,7 @@ export function ProviderCard({
   return (
     <div
       className={cn(
-        'bg-[#131b2e]/40 backdrop-blur-[40px] rounded-2xl border border-white/5 overflow-hidden transition-all hover:bg-[#131b2e]/60',
+        'glass-card glass-card-hover overflow-hidden',
         'shadow-[inset_0.5px_0.5px_0_0_rgba(255,255,255,0.05)]',
         className
       )}
@@ -108,11 +108,11 @@ export function ProviderCard({
           </div>
           {/* 名称 + 状态 */}
           <div>
-            <h3 className="text-base font-semibold text-white">{getProviderName()}</h3>
+            <h3 className="text-base font-semibold t-heading">{getProviderName()}</h3>
             <div className="flex gap-3 mt-1.5 items-center">
               {statusBadge()}
-              <span className="text-xs text-slate-400">账号: {accountCount} ({activeAccountCount} 活跃)</span>
-              <span className="text-xs text-slate-400">模型: {provider.supportedModels?.length || 0}</span>
+              <span className="text-xs t-sub">账号: {accountCount} ({activeAccountCount} 活跃)</span>
+              <span className="text-xs t-sub">模型: {provider.supportedModels?.length || 0}</span>
             </div>
           </div>
         </div>
@@ -125,22 +125,22 @@ export function ProviderCard({
           />
           <button
             onClick={() => onCheckStatus(provider.id)}
-            className="p-2 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-white/5 transition-all"
+            className="p-2 rounded-lg t-sub hover:text-cyan-400 hover:bg-white/5 transition-all"
             title="检查状态"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+              <button className="p-2 rounded-lg t-sub hover:t-heading hover:bg-white/5 transition-all">
                 <MoreVertical className="w-4 h-4" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-[#1e2740] border-white/10">
-              <DropdownMenuItem onClick={() => onEdit(provider.id)} className="text-white hover:bg-white/5">
+            <DropdownMenuContent align="end" className="bg-av-surface-high border-white/10">
+              <DropdownMenuItem onClick={() => onEdit(provider.id)} className="t-heading hover:bg-white/5">
                 <Edit className="w-4 h-4 mr-2" /> {t('providers.editProvider')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDuplicate(provider.id)} className="text-white hover:bg-white/5">
+              <DropdownMenuItem onClick={() => onDuplicate(provider.id)} className="t-heading hover:bg-white/5">
                 <Copy className="w-4 h-4 mr-2" /> {t('providers.duplicateProvider')}
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-white/10" />
@@ -151,7 +151,7 @@ export function ProviderCard({
           </DropdownMenu>
           <button
             onClick={() => setExpanded(!expanded)}
-            className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+            className="p-2 rounded-lg t-sub hover:t-heading hover:bg-white/5 transition-all"
           >
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
@@ -162,12 +162,12 @@ export function ProviderCard({
       {expanded && (
         <div className="border-t border-white/5 bg-black/20 p-5">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">账号列表</span>
+            <span className="text-xs font-bold t-sub uppercase tracking-widest">账号列表</span>
             <Button
               size="sm"
               variant="outline"
               onClick={() => onManageAccounts(provider.id)}
-              className="h-7 text-xs border-white/10 text-slate-300 hover:text-white hover:bg-white/5"
+              className="h-7 text-xs border-white/10 t-body hover:t-heading hover:bg-white/5"
             >
               {accountCount === 0 ? (
                 <><Plus className="w-3 h-3 mr-1" /> 添加账号</>
@@ -177,9 +177,9 @@ export function ProviderCard({
             </Button>
           </div>
           {accountCount === 0 ? (
-            <p className="text-xs text-slate-500 text-center py-4">暂无账号，点击上方按钮添加</p>
+            <p className="text-xs t-hint text-center py-4">暂无账号，点击上方按钮添加</p>
           ) : (
-            <p className="text-xs text-slate-400">{accountCount} 个账号，{activeAccountCount} 个活跃</p>
+            <p className="text-xs t-sub">{accountCount} 个账号，{activeAccountCount} 个活跃</p>
           )}
         </div>
       )}

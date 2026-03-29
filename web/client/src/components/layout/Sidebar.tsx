@@ -139,14 +139,14 @@ export function Sidebar() {
     <>
       <aside
         className={cn(
-          'fixed left-0 top-12 z-40 flex flex-col transition-all duration-300 ease-in-out bg-[#131b2e]/60 backdrop-blur-[50px] border-r border-white/5',
+          'fixed left-0 top-12 z-40 flex flex-col transition-all duration-300 ease-in-out bg-av-surface-low/60 backdrop-blur-[50px] border-r border-white/5',
           'h-[calc(100vh-48px)]',
           sidebarCollapsed ? 'w-[72px]' : 'w-56'
         )}
       >
         {!sidebarCollapsed && (
           <div className="px-6 pt-6 pb-4 mb-2">
-            <h1 className="text-base font-bold text-white tracking-tight">管理中心</h1>
+            <h1 className="text-base font-bold t-heading tracking-tight">管理中心</h1>
           </div>
         )}
         <nav className="flex-1 px-3 space-y-1 overflow-x-hidden overflow-y-auto">

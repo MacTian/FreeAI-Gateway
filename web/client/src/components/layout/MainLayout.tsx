@@ -7,7 +7,7 @@ export function MainLayout() {
   const { sidebarCollapsed } = useSettingsStore()
 
   return (
-    <div className="min-h-screen bg-[#0b1326] text-[#dbe2fd]">
+    <div className="min-h-screen bg-av-background t-body">
       {/* Liquid orbs */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div style={{

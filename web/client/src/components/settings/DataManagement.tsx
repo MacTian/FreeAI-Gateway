@@ -140,28 +140,28 @@ export function DataManagement() {
     <div className="space-y-6">
       <div>
         <div className="mb-4">
-          <h4 className="text-sm font-semibold text-white mb-1 flex items-center gap-2"><Database className="h-4 w-4 text-emerald-400" />{t('settings.logSettings')}</h4>
-          <p className="text-xs text-slate-400">{t('settings.logRetentionDays')}</p>
+          <h4 className="text-sm font-semibold t-heading mb-1 flex items-center gap-2"><Database className="h-4 w-4 text-emerald-400" />{t('settings.logSettings')}</h4>
+          <p className="text-xs t-sub">{t('settings.logRetentionDays')}</p>
         </div>
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2 p-3 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-              <Label htmlFor="log-level" className="text-slate-300 text-xs font-medium">{t('settings.logLevel')}</Label>
+              <Label htmlFor="log-level" className="t-body text-xs font-medium">{t('settings.logLevel')}</Label>
               <Select value={logLevel} onValueChange={(value) => setLogLevel(value as LogLevel)}>
-                <SelectTrigger id="log-level" className="bg-white/5 border-white/10 text-slate-200 h-8 text-xs">
+                <SelectTrigger id="log-level" className="bg-white/5 border-white/10 t-body h-8 text-xs">
                   <SelectValue placeholder={t('settings.selectLogLevel')} />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1e2740] border-white/10">
-                  <SelectItem value="debug" className="text-white text-xs">Debug</SelectItem>
-                  <SelectItem value="info" className="text-white text-xs">Info</SelectItem>
-                  <SelectItem value="warn" className="text-white text-xs">Warn</SelectItem>
-                  <SelectItem value="error" className="text-white text-xs">Error</SelectItem>
+                <SelectContent className="bg-av-surface-high border-white/10">
+                  <SelectItem value="debug" className="t-heading text-xs">Debug</SelectItem>
+                  <SelectItem value="info" className="t-heading text-xs">Info</SelectItem>
+                  <SelectItem value="warn" className="t-heading text-xs">Warn</SelectItem>
+                  <SelectItem value="error" className="t-heading text-xs">Error</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-slate-500">{t('settings.logLevelHelp')}</p>
+              <p className="text-xs t-hint">{t('settings.logLevelHelp')}</p>
             </div>
             <div className="space-y-2 p-3 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-              <Label htmlFor="log-retention" className="text-slate-300 text-xs font-medium">{t('settings.logRetentionDays')}</Label>
+              <Label htmlFor="log-retention" className="t-body text-xs font-medium">{t('settings.logRetentionDays')}</Label>
               <Input
                 id="log-retention"
                 type="number"
@@ -169,12 +169,12 @@ export function DataManagement() {
                 max={365}
                 value={logRetentionDays}
                 onChange={(e) => setLogRetentionDays(parseInt(e.target.value) || 30)}
-                className="bg-white/5 border-white/10 text-slate-200 h-8 text-xs"
+                className="bg-white/5 border-white/10 t-body h-8 text-xs"
               />
-              <p className="text-xs text-slate-500">{t('settings.logRetentionHelp')}</p>
+              <p className="text-xs t-hint">{t('settings.logRetentionHelp')}</p>
             </div>
             <div className="space-y-2 p-3 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-              <Label htmlFor="max-logs" className="text-slate-300 text-xs font-medium">{t('settings.maxLogs')}</Label>
+              <Label htmlFor="max-logs" className="t-body text-xs font-medium">{t('settings.maxLogs')}</Label>
               <Input
                 id="max-logs"
                 type="number"
@@ -182,9 +182,9 @@ export function DataManagement() {
                 max={100000}
                 value={maxLogs}
                 onChange={(e) => setMaxLogs(parseInt(e.target.value) || 10000)}
-                className="bg-white/5 border-white/10 text-slate-200 h-8 text-xs"
+                className="bg-white/5 border-white/10 t-body h-8 text-xs"
               />
-              <p className="text-xs text-slate-500">{t('settings.maxLogsHelp')}</p>
+              <p className="text-xs t-hint">{t('settings.maxLogsHelp')}</p>
             </div>
           </div>
         </div>
@@ -192,8 +192,8 @@ export function DataManagement() {
 
       <div>
         <div className="mb-4">
-          <h4 className="text-sm font-semibold text-white mb-1 flex items-center gap-2"><Download className="h-4 w-4 text-emerald-400" />{t('settings.dataManagement')}</h4>
-          <p className="text-xs text-slate-400">{t('settings.dataManagementDesc')}</p>
+          <h4 className="text-sm font-semibold t-heading mb-1 flex items-center gap-2"><Download className="h-4 w-4 text-emerald-400" />{t('settings.dataManagement')}</h4>
+          <p className="text-xs t-sub">{t('settings.dataManagementDesc')}</p>
         </div>
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
@@ -229,8 +229,8 @@ export function DataManagement() {
 
       <div>
         <div className="mb-4">
-          <h4 className="text-sm font-semibold text-white mb-1 flex items-center gap-2 text-red-400"><AlertTriangle className="h-4 w-4" />{t('settings.dangerZone')}</h4>
-          <p className="text-xs text-slate-400">{t('settings.dangerZoneDesc')}</p>
+          <h4 className="text-sm font-semibold t-heading mb-1 flex items-center gap-2 text-red-400"><AlertTriangle className="h-4 w-4" />{t('settings.dangerZone')}</h4>
+          <p className="text-xs t-sub">{t('settings.dangerZoneDesc')}</p>
         </div>
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">

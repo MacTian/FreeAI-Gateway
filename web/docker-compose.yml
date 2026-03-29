@@ -2,11 +2,9 @@ version: '3.8'
 
 services:
   chat2api:
-    build:
-      context: ..
-      dockerfile: web/Dockerfile
+    image: freeai-gateway:latest
     ports:
-      - "3012:3000"
+      - "3013:3000"
     volumes:
       - chat2api_data:/root/.chat2api
     environment:

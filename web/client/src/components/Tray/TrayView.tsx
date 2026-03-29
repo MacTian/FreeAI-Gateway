@@ -154,17 +154,17 @@ export function TrayView() {
               <img src={iconsPng} alt="FreeAI-Gateway" className="w-8 h-8" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-white tracking-tight">FreeAI-Gateway</h1>
+              <h1 className="text-base font-bold t-heading tracking-tight">FreeAI-Gateway</h1>
               <div className="flex items-center gap-1.5 mt-0.5">
                 {proxyRunning ? (
                   <>
-                    <Wifi size={12} className="text-white/90" />
-                    <span className="text-xs text-white/90 font-medium">{isZh ? '服务运行中' : 'Service Running'}</span>
+                    <Wifi size={12} className="t-heading/90" />
+                    <span className="text-xs t-heading/90 font-medium">{isZh ? '服务运行中' : 'Service Running'}</span>
                   </>
                 ) : (
                   <>
-                    <WifiOff size={12} className="text-white/90" />
-                    <span className="text-xs text-white/90 font-medium">{isZh ? '服务已停止' : 'Service Stopped'}</span>
+                    <WifiOff size={12} className="t-heading/90" />
+                    <span className="text-xs t-heading/90 font-medium">{isZh ? '服务已停止' : 'Service Stopped'}</span>
                   </>
                 )}
               </div>
@@ -176,13 +176,13 @@ export function TrayView() {
               disabled={isLoading || isRefreshing}
               className="p-2 rounded-lg hover:bg-white/20 transition-colors disabled:opacity-30"
             >
-              <RotateCw size={15} className={cn('text-white', (isLoading || isRefreshing) && 'animate-spin')} />
+              <RotateCw size={15} className={cn('t-heading', (isLoading || isRefreshing) && 'animate-spin')} />
             </button>
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg hover:bg-white/20 transition-colors"
             >
-              {isDark ? <Sun size={15} className="text-white" /> : <Moon size={15} className="text-white" />}
+              {isDark ? <Sun size={15} className="t-heading" /> : <Moon size={15} className="t-heading" />}
             </button>
           </div>
         </div>
@@ -195,19 +195,19 @@ export function TrayView() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 mb-1">
                 <Zap size={12} className="text-amber-500" />
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">API Endpoint</span>
+                <span className="text-[10px] t-sub dark:t-hint uppercase tracking-wider font-semibold">API Endpoint</span>
               </div>
               <button
                 onClick={handleCopyUrl}
                 className="flex items-center gap-1.5 group"
               >
-                <code className="text-sm font-mono font-semibold text-slate-800 dark:text-white truncate">
+                <code className="text-sm font-mono font-semibold text-slate-800 dark:t-heading truncate">
                   {host}:{port}
                 </code>
                 {copied ? (
                   <Check size={12} className="text-emerald-500 flex-shrink-0" />
                 ) : (
-                  <Copy size={12} className="text-slate-400 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Copy size={12} className="t-sub flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                 )}
               </button>
             </div>
@@ -217,8 +217,8 @@ export function TrayView() {
               className={cn(
                 "flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-md",
                 proxyRunning
-                  ? "bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:from-rose-600 hover:to-pink-600 shadow-rose-500/25"
-                  : "bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 shadow-emerald-500/25"
+                  ? "bg-gradient-to-r from-rose-500 to-pink-500 t-heading hover:from-rose-600 hover:to-pink-600 shadow-rose-500/25"
+                  : "bg-gradient-to-r from-emerald-500 to-teal-500 t-heading hover:from-emerald-600 hover:to-teal-600 shadow-emerald-500/25"
               )}
             >
               {proxyRunning ? <Square size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
@@ -239,8 +239,8 @@ export function TrayView() {
                 className={cn(
                   "flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all backdrop-blur-sm",
                   selectedProvider === p.id
-                    ? "bg-slate-900/90 dark:bg-white/90 text-white dark:text-slate-900 shadow-md"
-                    : "bg-slate-100/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-200/80 dark:hover:bg-slate-700/80"
+                    ? "bg-slate-900/90 dark:bg-white/90 t-heading dark:text-slate-900 shadow-md"
+                    : "bg-slate-100/80 dark:bg-slate-800/80 t-sub dark:t-sub hover:bg-slate-200/80 dark:hover:bg-slate-700/80"
                 )}
               >
                 {p.name}
@@ -265,9 +265,9 @@ export function TrayView() {
         ) : selectedProviderAccounts.length === 0 ? (
           <div className="py-10 text-center">
             <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-2">
-              <WifiOff size={20} className="text-slate-400" />
+              <WifiOff size={20} className="t-sub" />
             </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500">{isZh ? '暂无账户' : 'No accounts'}</p>
+            <p className="text-xs t-sub dark:t-hint">{isZh ? '暂无账户' : 'No accounts'}</p>
           </div>
         ) : (
           <div className="space-y-2 pb-3">
@@ -288,15 +288,15 @@ export function TrayView() {
                       "w-2.5 h-2.5 rounded-full flex-shrink-0",
                       isActive ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-slate-300 dark:bg-slate-600"
                     )} />
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">
+                    <span className="text-sm font-medium text-slate-700 dark:t-body truncate">
                       {account.name || account.email || 'Unknown'}
                     </span>
                   </div>
                   <span className={cn(
                     "text-[10px] font-semibold px-2 py-1 rounded-full flex-shrink-0",
                     isActive
-                      ? "bg-emerald-500 text-white"
-                      : "bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
+                      ? "bg-emerald-500 t-heading"
+                      : "bg-slate-200 dark:bg-slate-700 t-hint dark:t-sub"
                   )}>
                     {isActive ? (isZh ? '在线' : 'Active') : (isZh ? '离线' : 'Inactive')}
                   </span>
@@ -312,14 +312,14 @@ export function TrayView() {
         <div className="flex gap-2">
           <button
             onClick={openDashboard}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold text-sm transition-all shadow-md shadow-blue-500/25"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 t-heading font-semibold text-sm transition-all shadow-md shadow-blue-500/25"
           >
             <ExternalLink size={15} />
             <span>{isZh ? '打开主界面' : 'Open Dashboard'}</span>
           </button>
           <button
             onClick={quitApp}
-            className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 font-semibold text-sm transition-colors backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50"
+            className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 t-sub dark:t-body font-semibold text-sm transition-colors backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50"
           >
             <Power size={15} />
             <span>{isZh ? '退出' : 'Quit'}</span>

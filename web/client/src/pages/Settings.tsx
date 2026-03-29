@@ -13,35 +13,35 @@ export function Settings() {
   const { t } = useTranslation()
 
   return (
-    <div className="min-h-screen bg-[#0b1326] text-[#dbe2fd] p-6 space-y-6">
+    <div className="min-h-screen bg-av-background t-body p-6 space-y-6">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 right-1/3 w-96 h-96 bg-violet-500/5 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl" />
       </div>
       <div>
-        <h2 className="text-3xl font-light tracking-tight text-white font-headline">{t('settings.title')}</h2>
-        <p className="text-sm text-[#bcc9cd]">{t('settings.description')}</p>
+        <h2 className="text-3xl font-light tracking-tight t-heading font-headline">{t('settings.title')}</h2>
+        <p className="text-sm t-sub">{t('settings.description')}</p>
       </div>
 
       <Tabs defaultValue="appearance" className="w-full">
-        <TabsList className="flex flex-wrap gap-1 h-auto p-1.5 bg-[#131b2e]/60 backdrop-blur-[40px] border border-white/5 rounded-2xl">
-          <TabsTrigger value="appearance" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 text-slate-400">
+        <TabsList className="flex flex-wrap gap-1 h-auto p-1.5 glass-card">
+          <TabsTrigger value="appearance" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 t-sub">
             <Sun className="h-4 w-4" />
             <span className="hidden sm:inline">{t('settings.appearance')}</span>
           </TabsTrigger>
-          <TabsTrigger value="general" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 text-slate-400">
+          <TabsTrigger value="general" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 t-sub">
             <SettingsIcon className="h-4 w-4" />
             <span className="hidden sm:inline">{t('settings.generalSettings')}</span>
           </TabsTrigger>
-          <TabsTrigger value="data" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 text-slate-400">
+          <TabsTrigger value="data" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 t-sub">
             <Database className="h-4 w-4" />
             <span className="hidden sm:inline">{t('settings.data')}</span>
           </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 text-slate-400">
+          <TabsTrigger value="security" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 t-sub">
             <Shield className="h-4 w-4" />
             <span className="hidden sm:inline">{t('settings.security')}</span>
           </TabsTrigger>
-          <TabsTrigger value="managementApi" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 text-slate-400">
+          <TabsTrigger value="managementApi" className="flex items-center gap-2 py-2 px-4 rounded-xl data-[state=active]:bg-cyan-400/10 data-[state=active]:text-cyan-400 data-[state=active]:border-r-0 t-sub">
             <Key className="h-4 w-4" />
             <span className="hidden sm:inline">{t('settings.managementApi.title')}</span>
           </TabsTrigger>

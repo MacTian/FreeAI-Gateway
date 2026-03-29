@@ -223,7 +223,7 @@ export function ProxyStatus({ onStatusChange }: ProxyStatusProps) {
               <button
                 onClick={handleStop}
                 disabled={isLoading}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-sm font-bold hover:bg-white/20 disabled:opacity-50 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 t-heading text-sm font-bold hover:bg-white/20 disabled:opacity-50 transition-all"
               >
                 <Square className="h-4 w-4" />
                 {t('dashboard.stopProxy')}

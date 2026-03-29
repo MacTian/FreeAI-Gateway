@@ -18,13 +18,13 @@ export function RequestChart({ data, className }: RequestChartProps) {
   const { t } = useTranslation()
 
   return (
-    <div className={`bg-[#131b2e]/60 backdrop-blur-[40px] rounded-2xl border border-white/5 p-6 ${className ?? ''}`}
+    <div className={`glass-card p-6 ${className ?? ''}`}
       style={{ boxShadow: 'inset 0.5px 0.5px 0 0 rgba(255,255,255,0.05)' }}>
       <div className="flex items-center gap-3 mb-6">
         <div className="h-8 w-8 rounded-lg bg-cyan-400/10 flex items-center justify-center">
           <Activity className="h-4 w-4 text-cyan-400" />
         </div>
-        <h3 className="text-sm font-semibold text-white">{t('dashboard.requestsTrend')}</h3>
+        <h3 className="text-sm font-semibold t-heading">{t('dashboard.requestsTrend')}</h3>
       </div>
       <div className="h-[240px] w-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -43,10 +43,10 @@ export function RequestChart({ data, className }: RequestChartProps) {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#1e2740',
+                backgroundColor: "var(--av-dropdown-bg)",
                 border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: '12px',
-                color: '#dbe2fd',
+                color: 'var(--av-text-primary)',
                 fontSize: '12px',
               }}
               labelStyle={{ color: '#94a3b8' }}

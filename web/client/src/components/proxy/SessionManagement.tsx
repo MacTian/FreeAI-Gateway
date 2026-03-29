@@ -1,404 +1,317 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
-import { MessageSquare, Trash2, RefreshCw, Clock, Info } from 'lucide-react'
+import { MessageSquare, Trash2, RefreshCw, Clock, Zap, Layers } from 'lucide-react'
+import { api } from '@/api'
+
+interface SessionConfig {
+  mode: 'single' | 'multi'
+  sessionTimeout: number
+  maxMessagesPerSession: number
+  deleteAfterTimeout: boolean
+  maxSessionsPerAccount: number
+}
+
+interface Session {
+  id: string
+  providerId: string
+  accountId: string
+  model?: string
+  messages: any[]
+  createdAt: number
+  lastActiveAt: number
+  endedAt?: number
+}
 
 export function SessionManagement() {
   const { t } = useTranslation()
   const { toast } = useToast()
-  
-  const [config, setConfig] = useState<{
-    mode: 'single' | 'multi'
-    sessionTimeout: number
-    maxMessagesPerSession: number
-    deleteAfterTimeout: boolean
-    maxSessionsPerAccount: number
-  }>({
+
+  const [config, setConfig] = useState<SessionConfig>({
     mode: 'single',
     sessionTimeout: 30,
     maxMessagesPerSession: 50,
     deleteAfterTimeout: true,
     maxSessionsPerAccount: 3,
   })
-  
-  const [sessions, setSessions] = useState<any[]>([])
+  const [sessions, setSessions] = useState<Session[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  const loadConfig = useCallback(async () => {
+    try {
+      const data = await fetch('/api/sessions/config').then(r => r.json())
+      if (data.mode) setConfig(data)
+    } catch (e) {
+      console.error('Failed to load session config:', e)
+    }
+  }, [])
+
+  const loadSessions = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const data = await fetch('/api/sessions').then(r => r.json())
+      setSessions(Array.isArray(data) ? data : [])
+    } catch (e) {
+      console.error('Failed to load sessions:', e)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     loadConfig()
     loadSessions()
   }, [])
 
-  const loadConfig = async () => {
-    try {
-      const sessionConfig = await window.electronAPI.session.getConfig()
-      setConfig(sessionConfig)
-    } catch (error) {
-      console.error('Failed to load session config:', error)
-    }
-  }
-
-  const loadSessions = async () => {
-    try {
-      setIsLoading(true)
-      const allSessions = await window.electronAPI.session.getAll()
-      setSessions(allSessions)
-    } catch (error) {
-      console.error('Failed to load sessions:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleConfigChange = (updates: Partial<typeof config>) => {
+  const handleConfigChange = (updates: Partial<SessionConfig>) => {
     setConfig(prev => ({ ...prev, ...updates }))
     setHasChanges(true)
   }
 
   const saveConfig = async () => {
+    setIsSaving(true)
     try {
-      await window.electronAPI.session.updateConfig(config)
+      await fetch('/api/sessions/config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+      })
       setHasChanges(false)
-      toast({
-        title: t('common.success'),
-        description: t('session.configSaved'),
-      })
-    } catch (error) {
-      toast({
-        title: t('common.error'),
-        description: t('session.configSaveFailed'),
-        variant: 'destructive',
-      })
+      toast({ title: t('common.success'), description: t('session.configSaved') })
+    } catch {
+      toast({ title: t('common.error'), description: t('session.configSaveFailed'), variant: 'destructive' })
+    } finally {
+      setIsSaving(false)
     }
   }
 
   const handleDeleteSession = async (sessionId: string) => {
     try {
-      await window.electronAPI.session.delete(sessionId)
-      await loadSessions()
-      toast({
-        title: t('common.success'),
-        description: t('session.sessionDeleted'),
-      })
-    } catch (error) {
-      toast({
-        title: t('common.error'),
-        description: t('session.sessionDeleteFailed'),
-        variant: 'destructive',
-      })
+      await fetch(`/api/sessions/${sessionId}`, { method: 'DELETE' })
+      setSessions(prev => prev.filter(s => s.id !== sessionId))
+      toast({ title: t('common.success'), description: t('session.deleted') })
+    } catch {
+      toast({ title: t('common.error'), description: t('session.deleteFailed'), variant: 'destructive' })
     }
   }
 
-  const handleClearAllSessions = async () => {
+  const handleClearAll = async () => {
     try {
-      await window.electronAPI.session.clearAll()
-      await loadSessions()
-      toast({
-        title: t('common.success'),
-        description: t('session.sessionsCleared'),
-      })
-    } catch (error) {
-      toast({
-        title: t('common.error'),
-        description: t('session.sessionsClearFailed'),
-        variant: 'destructive',
-      })
+      await fetch('/api/sessions', { method: 'DELETE' })
+      setSessions([])
+      toast({ title: t('common.success'), description: t('session.allCleared') })
+    } catch {
+      toast({ title: t('common.error'), description: t('session.clearFailed'), variant: 'destructive' })
     }
   }
 
   const handleCleanExpired = async () => {
     try {
-      const count = await window.electronAPI.session.cleanExpired()
+      const data = await fetch('/api/sessions/clean', { method: 'POST' }).then(r => r.json())
       await loadSessions()
-      toast({
-        title: t('common.success'),
-        description: t('session.expiredCleaned', { count }),
-      })
-    } catch (error) {
-      toast({
-        title: t('common.error'),
-        description: t('session.expiredCleanFailed'),
-        variant: 'destructive',
-      })
+      toast({ title: t('common.success'), description: `清理了 ${data.cleaned} 个过期会话` })
+    } catch {
+      toast({ title: t('common.error'), description: '清理失败', variant: 'destructive' })
     }
   }
 
-  const formatTime = (timestamp: number) => {
-    const now = Date.now()
-    const diff = now - timestamp
-    const minutes = Math.floor(diff / 60000)
-    
-    if (minutes < 1) return t('session.justNow')
-    if (minutes < 60) return t('session.minutesAgo', { count: minutes })
-    
-    const hours = Math.floor(minutes / 60)
-    if (hours < 24) return t('session.hoursAgo', { count: hours })
-    
-    const days = Math.floor(hours / 24)
-    return t('session.daysAgo', { count: days })
+  const formatTime = (ts: number) => {
+    if (!ts) return '-'
+    const diff = Date.now() - ts
+    const mins = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+    if (days > 0) return `${days}天前`
+    if (hours > 0) return `${hours}小时前`
+    if (mins > 0) return `${mins}分钟前`
+    return '刚刚'
   }
 
-  const getSessionStatus = (session: any) => {
-    const timeoutMs = config.sessionTimeout * 60 * 1000
-    const now = Date.now()
-    const isExpired = (now - session.lastActiveAt) >= timeoutMs
-    
-    if (session.status === 'deleted') return 'deleted'
-    if (session.status === 'expired' || isExpired) return 'expired'
+  const getSessionStatus = (session: Session) => {
+    if (session.endedAt) return 'ended'
+    const timeout = config.sessionTimeout * 60 * 1000
+    if (Date.now() - session.lastActiveAt > timeout) return 'expired'
     return 'active'
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge variant="default" className="bg-green-500">{t('session.active')}</Badge>
-      case 'expired':
-        return <Badge variant="secondary">{t('session.expired')}</Badge>
-      case 'deleted':
-        return <Badge variant="destructive">{t('session.deleted')}</Badge>
-      default:
-        return <Badge variant="secondary">{status}</Badge>
-    }
+  const statusColors: Record<string, string> = {
+    active: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20',
+    expired: 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/20',
+    ended: 'bg-slate-500/15 text-slate-400 border border-slate-500/20',
   }
+  const statusLabels: Record<string, string> = { active: '活跃', expired: '过期', ended: '已结束' }
+
+  const activeSessions = sessions.filter(s => getSessionStatus(s) === 'active')
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            {t('session.sessionMode')}
-          </CardTitle>
-          <CardDescription>
-            {t('session.sessionModeDescription')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div 
-              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${config.mode === 'single' ? 'border-primary bg-primary/5' : 'border-muted hover:border-muted-foreground/50'}`}
-              onClick={() => handleConfigChange({ mode: 'single' })}
-            >
-              <div className="space-y-2">
-                <Label className="font-medium cursor-pointer text-base">
-                  {t('session.singleTurnMode')}
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  {t('session.singleTurnModeDescription')}
-                </p>
-              </div>
+      {/* 模式切换 */}
+      <div className="glass-card p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <Layers className="h-5 w-5 text-cyan-400" />
+          <h3 className="text-base font-semibold t-heading">会话模式</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {/* 单轮模式 */}
+          <button
+            onClick={() => handleConfigChange({ mode: 'single' })}
+            className={`p-5 rounded-2xl border-2 text-left transition-all ${
+              config.mode === 'single'
+                ? 'border-cyan-400/60 bg-cyan-400/10'
+                : 'border-white/10 hover:border-white/20 bg-white/5'
+            }`}
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <Zap className={`h-5 w-5 ${config.mode === 'single' ? 'text-cyan-400' : 'text-slate-400'}`} />
+              <span className="font-semibold t-heading">单轮模式</span>
+              {config.mode === 'single' && <span className="ml-auto text-[10px] font-bold bg-cyan-400/20 text-cyan-400 px-2 py-0.5 rounded-full">当前</span>}
             </div>
-            
-            <div 
-              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${config.mode === 'multi' ? 'border-primary bg-primary/5' : 'border-muted hover:border-muted-foreground/50'}`}
-              onClick={() => handleConfigChange({ mode: 'multi' })}
-            >
-              <div className="space-y-2">
-                <Label className="font-medium cursor-pointer text-base">
-                  {t('session.multiTurnMode')}
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  {t('session.multiTurnModeDescription')}
-                </p>
+            <p className="text-xs t-sub leading-relaxed">每次请求独立处理，不保留上下文。适合简单问答、代码补全等场景，延迟更低。</p>
+          </button>
+          {/* 多轮模式 */}
+          <button
+            onClick={() => handleConfigChange({ mode: 'multi' })}
+            className={`p-5 rounded-2xl border-2 text-left transition-all ${
+              config.mode === 'multi'
+                ? 'border-cyan-400/60 bg-cyan-400/10'
+                : 'border-white/10 hover:border-white/20 bg-white/5'
+            }`}
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <MessageSquare className={`h-5 w-5 ${config.mode === 'multi' ? 'text-cyan-400' : 'text-slate-400'}`} />
+              <span className="font-semibold t-heading">多轮模式</span>
+              {config.mode === 'multi' && <span className="ml-auto text-[10px] font-bold bg-cyan-400/20 text-cyan-400 px-2 py-0.5 rounded-full">当前</span>}
+            </div>
+            <p className="text-xs t-sub leading-relaxed">保留对话历史，支持连续上下文。适合复杂对话、代码调试等需要多轮交互的场景。</p>
+          </button>
+        </div>
+
+        {/* 多轮参数 */}
+        {config.mode === 'multi' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-white/5">
+            <div className="space-y-2">
+              <label className="text-xs font-medium t-sub">会话超时（分钟）</label>
+              <input
+                type="number" min={1} max={1440}
+                value={config.sessionTimeout}
+                onChange={e => handleConfigChange({ sessionTimeout: parseInt(e.target.value) || 30 })}
+                className="w-full h-8 px-3 rounded-lg text-xs bg-white/5 border border-white/10 t-heading focus:outline-none focus:border-cyan-400/50"
+              />
+              <p className="text-[10px] t-hint">超过此时间无活动则会话过期</p>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium t-sub">最大消息数</label>
+              <input
+                type="number" min={1} max={500}
+                value={config.maxMessagesPerSession}
+                onChange={e => handleConfigChange({ maxMessagesPerSession: parseInt(e.target.value) || 50 })}
+                className="w-full h-8 px-3 rounded-lg text-xs bg-white/5 border border-white/10 t-heading focus:outline-none focus:border-cyan-400/50"
+              />
+              <p className="text-[10px] t-hint">每个会话保留的最大消息条数</p>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium t-sub">每账号最大会话数</label>
+              <input
+                type="number" min={1} max={20}
+                value={config.maxSessionsPerAccount}
+                onChange={e => handleConfigChange({ maxSessionsPerAccount: parseInt(e.target.value) || 3 })}
+                className="w-full h-8 px-3 rounded-lg text-xs bg-white/5 border border-white/10 t-heading focus:outline-none focus:border-cyan-400/50"
+              />
+              <p className="text-[10px] t-hint">超出后自动清理最旧的会话</p>
+            </div>
+            <div className="flex items-center justify-between md:col-span-3 pt-2">
+              <div>
+                <p className="text-sm font-medium t-heading">超时后自动删除</p>
+                <p className="text-xs t-hint">过期会话自动从存储中删除</p>
               </div>
+              <Switch
+                checked={config.deleteAfterTimeout}
+                onCheckedChange={v => handleConfigChange({ deleteAfterTimeout: v })}
+              />
+            </div>
+          </div>
+        )}
+
+        {hasChanges && (
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={saveConfig}
+              disabled={isSaving}
+              className="px-6 py-2 rounded-xl text-sm font-bold bg-cyan-400 text-[#0b1326] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
+            >
+              {isSaving ? '保存中...' : '保存配置'}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* 活跃会话列表（仅多轮模式显示） */}
+      {config.mode === 'multi' && (
+        <div className="glass-card p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <Clock className="h-5 w-5 text-cyan-400" />
+              <h3 className="text-base font-semibold t-heading">活跃会话</h3>
+              <span className="text-[10px] font-bold bg-cyan-400/10 text-cyan-400 px-2 py-0.5 rounded-full">{activeSessions.length}</span>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={loadSessions} className="px-3 py-1.5 rounded-lg text-xs border border-white/10 t-sub hover:t-heading hover:bg-white/5 transition-all flex items-center gap-1">
+                <RefreshCw className="h-3 w-3" /> 刷新
+              </button>
+              <button onClick={handleCleanExpired} className="px-3 py-1.5 rounded-lg text-xs border border-white/10 t-sub hover:t-heading hover:bg-white/5 transition-all">
+                清理过期
+              </button>
+              <button onClick={handleClearAll} className="px-3 py-1.5 rounded-lg text-xs border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-all">
+                清空全部
+              </button>
             </div>
           </div>
 
-          {config.mode === 'single' && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pt-4 border-t">
-                <div className="h-2 w-2 rounded-full bg-primary"></div>
-                <span className="text-sm font-medium text-muted-foreground">{t('session.modeOptions')}</span>
-              </div>
-              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-                <div className="space-y-0.5">
-                  <Label htmlFor="delete-after-chat">{t('session.deleteAfterChat')}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {t('session.deleteAfterChatHint')}
-                  </p>
-                </div>
-                <Switch
-                  id="delete-after-chat"
-                  checked={config.deleteAfterTimeout}
-                  onCheckedChange={(checked) => handleConfigChange({ deleteAfterTimeout: checked })}
-                />
-              </div>
+          {isLoading ? (
+            <div className="py-12 text-center t-hint text-sm">加载中...</div>
+          ) : sessions.length === 0 ? (
+            <div className="py-12 text-center t-hint text-sm">暂无会话记录</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/5">
+                    {['供应商', '账号', '模型', '消息数', '状态', '最后活跃', '操作'].map(h => (
+                      <th key={h} className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-wider t-hint">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sessions.map(session => {
+                    const status = getSessionStatus(session)
+                    return (
+                      <tr key={session.id} className="border-b border-white/5 hover:bg-white/3 transition-colors">
+                        <td className="px-3 py-3 t-body font-medium truncate max-w-[120px]">{session.providerId}</td>
+                        <td className="px-3 py-3 t-sub truncate max-w-[100px]">{session.accountId}</td>
+                        <td className="px-3 py-3 t-sub">{session.model || '—'}</td>
+                        <td className="px-3 py-3 t-body">{session.messages?.length ?? 0}</td>
+                        <td className="px-3 py-3">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColors[status]}`}>
+                            {statusLabels[status]}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 t-hint">{formatTime(session.lastActiveAt)}</td>
+                        <td className="px-3 py-3">
+                          <button onClick={() => handleDeleteSession(session.id)} className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-all">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
-
-          {config.mode === 'multi' && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pt-4 border-t">
-                <div className="h-2 w-2 rounded-full bg-primary"></div>
-                <span className="text-sm font-medium text-muted-foreground">{t('session.modeOptions')}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="timeout">{t('session.sessionTimeout')}</Label>
-                  <Input
-                    id="timeout"
-                    type="number"
-                    min={1}
-                    max={1440}
-                    value={config.sessionTimeout}
-                    onChange={(e) => handleConfigChange({ sessionTimeout: parseInt(e.target.value) || 30 })}
-                  />
-                  <p className="text-xs text-muted-foreground">{t('session.sessionTimeoutHint')}</p>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="maxMessages">{t('session.maxMessages')}</Label>
-                  <Input
-                    id="maxMessages"
-                    type="number"
-                    min={1}
-                    max={500}
-                    value={config.maxMessagesPerSession}
-                    onChange={(e) => handleConfigChange({ maxMessagesPerSession: parseInt(e.target.value) || 50 })}
-                  />
-                  <p className="text-xs text-muted-foreground">{t('session.maxMessagesHint')}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="maxSessions">{t('session.maxSessionsPerAccount')}</Label>
-                  <Input
-                    id="maxSessions"
-                    type="number"
-                    min={1}
-                    max={10}
-                    value={config.maxSessionsPerAccount}
-                    onChange={(e) => handleConfigChange({ maxSessionsPerAccount: parseInt(e.target.value) || 3 })}
-                  />
-                  <p className="text-xs text-muted-foreground">{t('session.maxSessionsPerAccountHint')}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-                <div className="space-y-0.5">
-                  <Label htmlFor="delete-after-timeout">{t('session.deleteAfterTimeout')}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {t('session.deleteAfterTimeoutHint')}
-                  </p>
-                </div>
-                <Switch
-                  id="delete-after-timeout"
-                  checked={config.deleteAfterTimeout}
-                  onCheckedChange={(checked) => handleConfigChange({ deleteAfterTimeout: checked })}
-                />
-              </div>
-            </div>
-          )}
-
-          {hasChanges && (
-            <div className="flex justify-end pt-4 border-t">
-              <Button onClick={saveConfig}>
-                {t('common.save')}
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {config.mode === 'multi' && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  {t('session.activeSessions')}
-                </CardTitle>
-                <CardDescription>
-                  {t('session.activeSessionsDescription')}
-                </CardDescription>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={loadSessions}
-                  disabled={isLoading}
-                >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                  {t('common.refresh')}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCleanExpired}
-                >
-                  {t('session.cleanExpired')}
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleClearAllSessions}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  {t('session.clearAll')}
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {sessions.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Info className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>{t('session.noSessions')}</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="grid grid-cols-6 gap-2 text-sm font-medium text-muted-foreground pb-2 border-b">
-                  <div>{t('session.provider')}</div>
-                  <div>{t('session.account')}</div>
-                  <div>{t('session.model')}</div>
-                  <div>{t('session.messages')}</div>
-                  <div>{t('session.lastActive')}</div>
-                  <div>{t('common.actions')}</div>
-                </div>
-                
-                {sessions.map((session) => {
-                  const status = getSessionStatus(session)
-                  return (
-                    <div
-                      key={session.id}
-                      className="grid grid-cols-6 gap-2 text-sm py-2 border-b items-center"
-                    >
-                      <div className="truncate">{session.providerId}</div>
-                      <div className="truncate">{session.accountId}</div>
-                      <div className="truncate">{session.model || '-'}</div>
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(status)}
-                        <span>{session.messages.length}</span>
-                      </div>
-                      <div className="text-muted-foreground">
-                        {formatTime(session.lastActiveAt)}
-                      </div>
-                      <div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteSession(session.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        </div>
       )}
     </div>
   )

@@ -103,7 +103,7 @@ export async function getDeepSeekHash(): Promise<DeepSeekHash> {
   if (!deepSeekHashInstance) {
     deepSeekHashInstance = new DeepSeekHash()
     // 查找 wasm 文件：项目根目录
-    const wasmPath = path.join(__dirname, '..', '..', '..', 'sha3_wasm_bg.7b9ca65ddd.wasm')
+    const wasmPath = path.join(__dirname, '..', 'sha3_wasm_bg.7b9ca65ddd.wasm')
     console.log('[DeepSeekHash] WASM path:', wasmPath)
     try {
       await deepSeekHashInstance.init(wasmPath)

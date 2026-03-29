@@ -1,7 +1,7 @@
 # FreeAI-Gateway
 
 <p align="center">
-  <img src="build/icons.png" alt="FreeAI-Gateway Logo" width="128" height="128">
+  <img src="logo.svg" alt="FreeAI-Gateway Logo" width="128" height="128">
 </p>
 
 <p align="center">

@@ -30,7 +30,7 @@ export function About() {
         {/* 链接网格 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mb-10">
           <a
-            href="https://github.com/xiaoY233/Chat2API"
+            href="https://github.com/spf0209/FreeAI-Gateway"
             target="_blank"
             rel="noopener noreferrer"
             className="group p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-cyan-400/30 transition-all duration-300 flex flex-col items-center gap-3"
@@ -50,7 +50,7 @@ export function About() {
             <span className="text-sm font-medium t-body group-hover:t-heading transition-colors">文档中心</span>
           </a>
           <a
-            href="https://github.com/xiaoY233/Chat2API/issues"
+            href="https://github.com/spf0209/FreeAI-Gateway/issues"
             target="_blank"
             rel="noopener noreferrer"
             className="group p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-cyan-400/30 transition-all duration-300 flex flex-col items-center gap-3"
@@ -70,7 +70,7 @@ export function About() {
           <p className="text-[11px] font-bold tracking-[0.2em] t-sub uppercase">
             由{' '}
             <a
-              href="https://github.com/xiaoY233/Chat2API"
+              href="https://github.com/spf0209/FreeAI-Gateway"
               target="_blank"
               rel="noopener noreferrer"
               className="text-cyan-400 hover:underline"

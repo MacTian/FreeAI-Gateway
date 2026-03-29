@@ -301,5 +301,80 @@ export const store = {
   clearSessions(): void {
     writeJson('sessions.json', [])
   },
+  getSessionById(id: string): any {
+    return this.getSessions().find((s: any) => s.id === id)
+  },
+  getActiveSessionByProviderAccount(providerId: string, accountId: string): any {
+    const now = Date.now()
+    const config = this.getSessionConfig()
+    const timeout = (config.sessionTimeout || 30) * 60 * 1000
+    return this.getSessions().find((s: any) =>
+      s.providerId === providerId &&
+      s.accountId === accountId &&
+      !s.endedAt &&
+      (now - (s.lastActiveAt || s.createdAt)) < timeout
+    )
+  },
+  getActiveSessions(): any[] {
+    const now = Date.now()
+    const config = this.getSessionConfig()
+    const timeout = (config.sessionTimeout || 30) * 60 * 1000
+    return this.getSessions().filter((s: any) =>
+      !s.endedAt && (now - (s.lastActiveAt || s.createdAt)) < timeout
+    )
+  },
+  getSessionsByAccountId(accountId: string): any[] {
+    return this.getSessions().filter((s: any) => s.accountId === accountId)
+  },
+  getSessionsByProviderId(providerId: string): any[] {
+    return this.getSessions().filter((s: any) => s.providerId === providerId)
+  },
+  updateSession(id: string, updates: any): any {
+    const sessions = this.getSessions()
+    const idx = sessions.findIndex((s: any) => s.id === id)
+    if (idx === -1) return null
+    sessions[idx] = { ...sessions[idx], ...updates }
+    writeJson('sessions.json', sessions)
+    return sessions[idx]
+  },
+  updateProviderSessionId(sessionId: string, providerSessionId: string, parentMessageId?: string): any {
+    return this.updateSession(sessionId, {
+      providerSessionId,
+      ...(parentMessageId ? { parentMessageId } : {}),
+      lastActiveAt: Date.now(),
+    })
+  },
+  updateParentMessageId(sessionId: string, parentMessageId: string): any {
+    return this.updateSession(sessionId, { parentMessageId, lastActiveAt: Date.now() })
+  },
+  addMessageToSession(sessionId: string, message: any): any {
+    const session = this.getSessionById(sessionId)
+    if (!session) return null
+    const messages = session.messages || []
+    messages.push(message)
+    return this.updateSession(sessionId, { messages, lastActiveAt: Date.now() })
+  },
+  getSessionConfig(): any {
+    const config = this.getConfig()
+    return config.sessionConfig || { mode: 'single', sessionTimeout: 30, maxMessagesPerSession: 50, deleteAfterTimeout: true, maxSessionsPerAccount: 3 }
+  },
+  updateSessionConfig(updates: any): any {
+    const config = this.getConfig()
+    const newSessionConfig = { ...this.getSessionConfig(), ...updates }
+    this.updateConfig({ sessionConfig: newSessionConfig })
+    return newSessionConfig
+  },
+  cleanExpiredSessions(): number {
+    const sessions = this.getSessions()
+    const config = this.getSessionConfig()
+    const now = Date.now()
+    const timeout = (config.sessionTimeout || 30) * 60 * 1000
+    const active = sessions.filter((s: any) =>
+      !s.endedAt && (now - (s.lastActiveAt || s.createdAt)) < timeout
+    )
+    const removed = sessions.length - active.length
+    if (removed > 0) writeJson('sessions.json', active)
+    return removed
+  },
 }
 

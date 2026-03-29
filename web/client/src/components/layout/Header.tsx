@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { Sun, Moon, Languages, Play, Pause } from 'lucide-react'
 import { useTheme } from '@/hooks/useTheme'
 import { cn } from '@/lib/utils'
-import logoIcon from '@/assets/icons/icons.png'
+import logoIcon from '@/assets/icons/logo.svg'
 import { useEffect, useState } from 'react'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { api } from '@/api'
@@ -41,18 +41,18 @@ export function Header() {
   }
 
   return (
-    <header className="glass-topbar flex items-center justify-between px-4 drag-region h-12">
+    <header className="fixed top-0 left-0 right-0 z-50 h-12 flex items-center justify-between px-4 bg-[#131b2e]/70 backdrop-blur-[50px] border-b border-white/5">
       <div className="flex items-center gap-3 no-drag">
         <div className="sidebar-logo-icon">
           <img 
             src={logoIcon} 
-            alt="Chat2API" 
+            alt="FreeAI-Gateway" 
             className="h-7 w-7 object-contain"
           />
         </div>
         <div className="flex flex-col">
           <span className="text-base font-bold text-[var(--text-primary)] leading-tight">
-            Chat2API
+            FreeAI-Gateway
           </span>
         </div>
       </div>

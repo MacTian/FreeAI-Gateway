@@ -159,19 +159,15 @@ export function AccountList({
 
   if (accounts.length === 0) {
     return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <User className="h-12 w-12 text-muted-foreground opacity-50 mb-4" />
-          <p className="text-lg font-medium text-muted-foreground">{t('common.noData')}</p>
-          <p className="text-sm text-muted-foreground mb-4">
-            {t('providers.clickToAddProvider')}
-          </p>
-          <Button onClick={onAddAccount}>
-            <Plus className="mr-2 h-4 w-4" />
-            {t('providers.addAccount')}
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="bg-[#131b2e]/40 backdrop-blur-[40px] rounded-2xl border border-white/5 flex flex-col items-center justify-center py-12" style={{boxShadow:'inset 0.5px 0.5px 0 0 rgba(255,255,255,0.05)'}}>
+        <User className="h-12 w-12 text-slate-500 mb-4" />
+        <p className="text-base font-medium text-slate-400">{t('common.noData')}</p>
+        <p className="text-sm text-slate-500 mb-6">{t('providers.clickToAddProvider')}</p>
+        <button onClick={onAddAccount} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-400 text-[#0b1326] text-sm font-bold hover:opacity-90 transition-all">
+          <Plus className="h-4 w-4" />
+          {t('providers.addAccount')}
+        </button>
+      </div>
     )
   }
 
@@ -183,10 +179,10 @@ export function AccountList({
           <span>•</span>
           <span className="text-green-600">{activeCount} {t('providers.onlineCount')}</span>
         </div>
-        <Button size="sm" onClick={onAddAccount}>
-          <Plus className="mr-2 h-4 w-4" />
+        <button onClick={onAddAccount} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-cyan-400 text-[#0b1326] text-xs font-bold hover:opacity-90 transition-all">
+          <Plus className="h-3.5 w-3.5" />
           {t('providers.addAccount')}
-        </Button>
+        </button>
       </div>
 
       <ScrollArea className="h-[calc(100vh-400px)]">
@@ -197,54 +193,57 @@ export function AccountList({
             const isValidating = validatingIds.has(account.id)
 
             return (
-              <Card 
-                key={account.id} 
-                className="hover:shadow-sm transition-shadow cursor-pointer"
+              <div
+                key={account.id}
+                className="bg-[#131b2e]/40 backdrop-blur-[40px] rounded-2xl border border-white/5 hover:bg-[#131b2e]/60 transition-all cursor-pointer overflow-hidden"
+                style={{boxShadow:'inset 0.5px 0.5px 0 0 rgba(255,255,255,0.05)'}}
                 onClick={() => onViewDetail(account)}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={cn(
-                        'h-10 w-10 rounded-full flex items-center justify-center',
-                        config.bgColor
-                      )}>
-                        <User className={cn('h-5 w-5', config.color)} />
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium truncate">{account.name}</span>
-                          <Badge 
-                            variant="outline" 
-                            className={cn('text-xs', config.color, config.bgColor)}
-                          >
-                            <StatusIcon className="mr-1 h-3 w-3" />
-                            {t(config.labelKey)}
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                          {account.email && (
-                            <span className="truncate">{account.email}</span>
-                          )}
-                          <span>{t('dashboard.totalRequests')}: {account.requestCount || 0}</span>
-                          <span>{t('providers.usedToday')}: {formatUsage(account)}</span>
-                        </div>
-                        
-                        {account.status === 'error' && account.errorMessage && (
-                          <p className="text-xs text-red-500 mt-1 truncate">
-                            {account.errorMessage}
-                          </p>
+                <div className="p-5 flex items-center justify-between">
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    {/* 状态图标 */}
+                    <div className={cn(
+                      'w-10 h-10 rounded-xl flex items-center justify-center shrink-0',
+                      account.status === 'active' ? 'bg-emerald-500/10' :
+                      account.status === 'error' ? 'bg-red-500/10' : 'bg-white/5'
+                    )}>
+                      <User className={cn('h-5 w-5',
+                        account.status === 'active' ? 'text-emerald-400' :
+                        account.status === 'error' ? 'text-red-400' : 'text-slate-400'
+                      )} />
+                    </div>
+                    {/* 名称 + 状态 */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-semibold text-white truncate">{account.name}</span>
+                        {account.status === 'active' && (
+                          <span className="flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                            <span className="w-1 h-1 rounded-full bg-emerald-400"></span>活跃
+                          </span>
+                        )}
+                        {account.status === 'error' && (
+                          <span className="flex items-center gap-1 text-[10px] text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
+                            <span className="w-1 h-1 rounded-full bg-red-400"></span>错误
+                          </span>
+                        )}
+                        {account.status === 'inactive' && (
+                          <span className="flex items-center gap-1 text-[10px] text-slate-400 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+                            <span className="w-1 h-1 rounded-full bg-slate-400"></span>停用
+                          </span>
                         )}
                       </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className="text-right text-xs text-muted-foreground">
-                        <div>{t('providers.lastCheck')}</div>
-                        <div>{formatDate(account.lastUsed)}</div>
+                      <div className="flex items-center gap-3 text-[10px] text-slate-500">
+                        {account.email && <span className="truncate max-w-[120px]">{account.email}</span>}
+                        <span>请求: {account.requestCount || 0}</span>
+                        <span>今日: {formatUsage(account)}</span>
+                        {account.lastUsed && <span>{formatDate(account.lastUsed)}</span>}
                       </div>
+                      {account.status === 'error' && account.errorMessage && (
+                        <p className="text-[10px] text-red-400 mt-1 truncate">{account.errorMessage}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
                       
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -321,8 +320,7 @@ export function AccountList({
                       </DropdownMenu>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
             )
           })}
         </div>

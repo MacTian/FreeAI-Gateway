@@ -63,6 +63,8 @@ export const api = {
   // Logs
   getLogs: (limit?: number) => get<any[]>(`/api/logs${limit ? '?limit=' + limit : ''}`),
   clearLogs: () => del<any>('/api/logs'),
+  getLogStats: () => get<any>('/api/logs/stats'),
+  getLogTrend: (days?: number) => get<any[]>(`/api/logs/trend${days ? '?days=' + days : ''}`),
 }
 
 // Polyfill window.electron for legacy code

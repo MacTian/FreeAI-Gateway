@@ -107,25 +107,22 @@ export function ManagementApiSettings() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="py-6">
+      <div>
+        <div className="space-y-4">
           <p className="text-center text-muted-foreground">{t('common.loading')}</p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     )
   }
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Key className="h-5 w-5" />
-            {t('settings.managementApi.title')}
-          </CardTitle>
-          <CardDescription>{t('settings.managementApi.description')}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <div>
+        <div className="mb-4">
+          <h4 className="text-sm font-semibold text-white mb-1 flex items-center gap-2"><Key className="h-4 w-4 text-cyan-400" />{t('settings.managementApi.title')}</h4>
+          <p className="text-xs text-slate-400">{t('settings.managementApi.description')}</p>
+        </div>
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="management-api-toggle">{t('settings.managementApi.enableToggle')}</Label>
@@ -147,17 +144,17 @@ export function ManagementApiSettings() {
               <span className="text-sm text-muted-foreground">{t('settings.managementApi.disabled')}</span>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {config.enableManagementApi && (
         <>
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('settings.managementApi.secretKey')}</CardTitle>
-              <CardDescription>{t('settings.managementApi.secretKeyDescription')}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <div>
+            <div className="mb-4">
+              <h4 className="text-sm font-semibold text-white mb-1">{t('settings.managementApi.secretKey')}</h4>
+              <p className="text-xs text-slate-400">{t('settings.managementApi.secretKeyDescription')}</p>
+            </div>
+            <div className="space-y-4">
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>{t('settings.managementApi.warning')}</AlertDescription>
@@ -198,18 +195,15 @@ export function ManagementApiSettings() {
                 <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
                 {t('settings.managementApi.generateNew')}
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Terminal className="h-5 w-5" />
-                {t('settings.managementApi.apiDocumentation')}
-              </CardTitle>
-              <CardDescription>{t('settings.managementApi.exampleUsage')}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <div>
+            <div className="mb-4">
+              <h4 className="text-sm font-semibold text-white mb-1 flex items-center gap-2"><Terminal className="h-4 w-4 text-cyan-400" />{t('settings.managementApi.apiDocumentation')}</h4>
+              <p className="text-xs text-slate-400">{t('settings.managementApi.exampleUsage')}</p>
+            </div>
+            <div className="space-y-4">
               <div className="space-y-2">
                 <Label>{t('settings.managementApi.apiEndpoint')}</Label>
                 <code className="block w-full rounded-md bg-muted p-3 text-sm font-mono break-all">
@@ -234,8 +228,8 @@ export function ManagementApiSettings() {
   -d '{"proxyPort": 8181}'`}
                 </pre>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </>
       )}
 

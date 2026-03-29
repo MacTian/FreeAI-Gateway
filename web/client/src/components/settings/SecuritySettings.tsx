@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useSettingsStore } from '@/stores/settingsStore'
@@ -7,65 +6,43 @@ import { Lock, FileText } from 'lucide-react'
 
 export function SecuritySettings() {
   const { t } = useTranslation()
-  const {
-    credentialEncryption,
-    setCredentialEncryption,
-    logDesensitization,
-    setLogDesensitization,
-  } = useSettingsStore()
+  const { credentialEncryption, setCredentialEncryption, logDesensitization, setLogDesensitization } = useSettingsStore()
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lock className="h-5 w-5" />
-            {t('settings.credentialEncryption')}
-          </CardTitle>
-          <CardDescription>{t('settings.credentialEncryptionHelp')}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="credential-encryption">{t('settings.credentialEncryption')}</Label>
-            </div>
-            <Switch
-              id="credential-encryption"
-              checked={credentialEncryption}
-              onCheckedChange={setCredentialEncryption}
-            />
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Lock className="h-4 w-4 text-violet-400" />
+            <Label className="text-[#dbe2fd] text-sm font-semibold">{t('settings.credentialEncryption')}</Label>
           </div>
-        </CardContent>
-      </Card>
+          <p className="text-xs text-slate-400">{t('settings.credentialEncryptionHelp')}</p>
+        </div>
+        <Switch checked={credentialEncryption} onCheckedChange={setCredentialEncryption} />
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            {t('settings.logDesensitization')}
-          </CardTitle>
-          <CardDescription>{t('settings.logDesensitizationHelp')}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="log-desensitization">{t('settings.logDesensitization')}</Label>
-            </div>
-            <Switch
-              id="log-desensitization"
-              checked={logDesensitization}
-              onCheckedChange={setLogDesensitization}
-            />
+      <div className="h-px bg-white/5" />
+
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-violet-400" />
+            <Label className="text-[#dbe2fd] text-sm font-semibold">{t('settings.logDesensitization')}</Label>
           </div>
-          <div className="rounded-md bg-muted p-4">
-            <p className="text-sm font-medium mb-2">{t('settings.example')}</p>
-            <div className="space-y-1 text-sm text-muted-foreground">
-              <p>Original: sk-1234567890abcdef1234567890abcdef</p>
-              <p>Masked: sk-1234****cdef</p>
-            </div>
+          <p className="text-xs text-slate-400">{t('settings.logDesensitizationHelp')}</p>
+        </div>
+        <Switch checked={logDesensitization} onCheckedChange={setLogDesensitization} />
+      </div>
+
+      {logDesensitization && (
+        <div className="rounded-xl bg-[#0b1326]/60 border border-white/5 p-4 text-xs">
+          <p className="text-slate-400 font-medium mb-2">{t('settings.example')}</p>
+          <div className="space-y-1 font-mono text-slate-500">
+            <p>原始: sk-1234567890abcdef1234567890abcdef</p>
+            <p className="text-cyan-400">脱敏: sk-1234****cdef</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -1018,4 +1022,209 @@ body {
 
 [data-theme="dark"] [data-state="active"].tab-trigger {
   background: var(--bg-tertiary);
+}
+
+/* Liquid Glass Sidebar Nav */
+.sidebar-nav-item {
+  @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 relative;
+  color: #bcc9cd;
+}
+.sidebar-nav-item:hover {
+  background: rgba(255,255,255,0.05);
+  color: #dbe2fd;
+}
+.sidebar-nav-item.active {
+  color: #4cd7f6;
+  background: rgba(76,215,246,0.08);
+}
+.sidebar-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 20%;
+  height: 60%;
+  width: 2px;
+  background: #4cd7f6;
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 8px #4cd7f6;
+}
+.sidebar-nav-item.collapsed {
+  @apply justify-center px-2;
+}
+.sidebar-nav-item.expanded {
+  @apply justify-start;
+}
+
+/* Glass bevel effect */
+.glass-bevel {
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.1), inset -1px -1px 0 rgba(0,0,0,0.2);
+}
+
+/* Sidebar collapse button */
+.sidebar-collapse-btn {
+  @apply p-2 rounded-xl transition-all duration-200;
+  color: #bcc9cd;
+}
+.sidebar-collapse-btn:hover {
+  background: rgba(255,255,255,0.05);
+  color: #dbe2fd;
+}
+
+/* === Liquid Glass — Global Component Overrides === */
+
+/* Card */
+.dark .card, [class*="rounded-lg border bg-card"] {
+  background: rgba(19, 27, 46, 0.6) !important;
+  backdrop-filter: blur(40px);
+  border-color: rgba(255,255,255,0.05) !important;
+  color: #dbe2fd;
+}
+
+/* Tabs */
+.dark [role="tablist"] {
+  background: rgba(19, 27, 46, 0.6) !important;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 0.75rem;
+  padding: 4px;
+}
+.dark [role="tab"] {
+  color: #bcc9cd;
+  border-radius: 0.5rem;
+}
+.dark [role="tab"][data-state="active"] {
+  background: rgba(76, 215, 246, 0.1) !important;
+  color: #4cd7f6 !important;
+  box-shadow: none;
+}
+
+/* Table */
+.dark table thead tr {
+  background: rgba(19, 27, 46, 0.8) !important;
+  border-color: rgba(255,255,255,0.05) !important;
+}
+.dark table tbody tr {
+  border-color: rgba(255,255,255,0.03) !important;
+}
+.dark table tbody tr:hover {
+  background: rgba(255,255,255,0.03) !important;
+}
+
+/* Input */
+.dark input, .dark textarea, .dark select {
+  background: rgba(11, 19, 38, 0.8) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: #dbe2fd !important;
+}
+.dark input:focus, .dark textarea:focus {
+  border-color: rgba(76, 215, 246, 0.4) !important;
+  box-shadow: 0 0 0 1px rgba(76, 215, 246, 0.2) !important;
+}
+
+/* Button variants */
+.dark button[class*="outline"] {
+  border-color: rgba(255,255,255,0.1) !important;
+  color: #dbe2fd !important;
+  background: transparent !important;
+}
+.dark button[class*="outline"]:hover {
+  background: rgba(255,255,255,0.05) !important;
+}
+
+/* Badge */
+.dark .badge {
+  border-color: rgba(255,255,255,0.1);
+}
+
+/* ScrollArea */
+.dark [data-radix-scroll-area-viewport] {
+  background: transparent !important;
+}
+
+/* Dialog */
+.dark [role="dialog"] {
+  background: rgba(23, 31, 51, 0.95) !important;
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  color: #dbe2fd;
+}
+
+/* Separator */
+.dark [data-orientation="horizontal"] {
+  background: rgba(255,255,255,0.06) !important;
+}
+
+/* === Liquid Orbs — Global Background === */
+body::before, body::after {
+  content: '';
+  position: fixed;
+  border-radius: 9999px;
+  z-index: -1;
+  filter: blur(120px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+body::before {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #4cd7f6 0%, transparent 70%);
+  top: -100px;
+  right: -100px;
+}
+body::after {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #d0bcff 0%, transparent 70%);
+  bottom: -50px;
+  left: -50px;
+}
+
+/* Third orb via html::before */
+html::before {
+  content: '';
+  position: fixed;
+  border-radius: 9999px;
+  z-index: -1;
+  filter: blur(120px);
+  opacity: 0.25;
+  pointer-events: none;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, #f074ff 0%, transparent 70%);
+  top: 40%;
+  left: 20%;
+}
+
+/* glass-bevel */
+.glass-bevel {
+  box-shadow: inset 0.5px 0.5px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Sidebar active — right border (matching Stitch) */
+.sidebar-nav-item.active {
+  color: #4cd7f6;
+  background: rgba(76, 215, 246, 0.08);
+}
+.sidebar-nav-item.active::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 15%;
+  height: 70%;
+  width: 2px;
+  background: #4cd7f6;
+  border-radius: 2px 0 0 2px;
+  box-shadow: 0 0 8px #4cd7f6;
+  left: unset;
+}
+
+/* Font headline */
+.font-headline {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Plus Jakarta Sans as default */
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #0b1326;
+  overflow-x: hidden;
 }

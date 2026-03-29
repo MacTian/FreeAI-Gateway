@@ -1,28 +1,27 @@
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { 
-  MoreVertical, 
-  Edit, 
-  Trash2, 
-  Copy, 
-  RefreshCw, 
-  Users,
+import {
+  MoreVertical,
+  Edit,
+  Trash2,
+  Copy,
+  RefreshCw,
   Plus,
   LogIn,
-  Info
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getProviderIcon } from '@/lib/providerIcons'
+import { useState } from 'react'
 import type { Provider, ProviderStatus } from '@/types/electron'
 
 interface ProviderCardProps {
@@ -39,12 +38,6 @@ interface ProviderCardProps {
   className?: string
 }
 
-const statusColors: Record<ProviderStatus, string> = {
-  online: 'bg-green-500',
-  offline: 'bg-red-500',
-  unknown: 'bg-gray-500',
-}
-
 export function ProviderCard({
   provider,
   status,
@@ -59,173 +52,139 @@ export function ProviderCard({
   className,
 }: ProviderCardProps) {
   const { t } = useTranslation()
-  const isBuiltin = provider.type === 'builtin'
-  const icon = getProviderIcon(provider)
+  const [expanded, setExpanded] = useState(false)
   const currentStatus = provider.status || status || 'unknown'
-
-  const statusTexts: Record<ProviderStatus, string> = {
-    online: t('providers.online'),
-    offline: t('providers.offline'),
-    unknown: t('providers.unknown'),
-  }
+  const icon = getProviderIcon(provider)
 
   const getProviderName = () => {
-    if (isBuiltin && provider.id) {
+    if (provider.type === 'builtin' && provider.id) {
       return t(`${provider.id}.name`, { defaultValue: provider.name })
     }
     return provider.name
   }
 
-  const getProviderDescription = () => {
-    if (isBuiltin && provider.id) {
-      return t(`${provider.id}.description`, { defaultValue: provider.description })
+  const statusBadge = () => {
+    if (currentStatus === 'online') {
+      return (
+        <span className="flex items-center gap-1.5 text-xs text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+          在线
+        </span>
+      )
+    } else if (currentStatus === 'offline') {
+      return (
+        <span className="flex items-center gap-1.5 text-xs text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+          离线
+        </span>
+      )
     }
-    return provider.description
+    return (
+      <span className="flex items-center gap-1.5 text-xs text-slate-400 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+        <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+        未知
+      </span>
+    )
   }
 
   return (
-    <Card hover className={cn('', className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-[var(--accent-primary)]/10 flex items-center justify-center overflow-hidden">
+    <div
+      className={cn(
+        'bg-[#131b2e]/40 backdrop-blur-[40px] rounded-2xl border border-white/5 overflow-hidden transition-all hover:bg-[#131b2e]/60',
+        'shadow-[inset_0.5px_0.5px_0_0_rgba(255,255,255,0.05)]',
+        className
+      )}
+    >
+      {/* 主行 */}
+      <div className="p-5 flex items-center justify-between">
+        <div className="flex items-center gap-5">
+          {/* 图标 */}
+          <div className="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-violet-500/20 rounded-xl flex items-center justify-center border border-cyan-500/20 shrink-0 overflow-hidden">
             {icon ? (
-              <img 
-                src={icon} 
-                alt={provider.name}
-                className="h-8 w-8 object-contain"
-              />
+              <img src={icon} alt={getProviderName()} className="w-8 h-8 object-contain" />
             ) : (
-              <span className="text-xl">🔌</span>
+              <span className="text-lg font-bold text-cyan-400">{getProviderName().slice(0,2).toUpperCase()}</span>
             )}
           </div>
+          {/* 名称 + 状态 */}
           <div>
-            <CardTitle className="text-base flex items-center gap-2">
-              {getProviderName()}
-              {isBuiltin && (
-                <Badge variant="outline" className="text-xs">
-                  {t('providers.builtin')}
-                </Badge>
-              )}
-            </CardTitle>
-            <CardDescription className="text-xs mt-1">
-              {getProviderDescription() || `${provider.supportedModels?.length || 0} ${t('providers.models').toLowerCase()}`}
-            </CardDescription>
-            {provider.id === 'perplexity' && (
-              <p className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 mt-1">
-                <Info className="h-3 w-3 flex-shrink-0" />
-                <span>{t('perplexity.freeUserNotice')}</span>
-              </p>
-            )}
+            <h3 className="text-base font-semibold text-white">{getProviderName()}</h3>
+            <div className="flex gap-3 mt-1.5 items-center">
+              {statusBadge()}
+              <span className="text-xs text-slate-400">账号: {accountCount} ({activeAccountCount} 活跃)</span>
+              <span className="text-xs text-slate-400">模型: {provider.supportedModels?.length || 0}</span>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            <div className={`w-2 h-2 rounded-full ${statusColors[currentStatus]}`} />
-            <span className="text-xs text-muted-foreground">{statusTexts[currentStatus]}</span>
-          </div>
+
+        {/* 右侧操作 */}
+        <div className="flex items-center gap-3">
           <Switch
-            checked={provider.enabled}
+            checked={provider.enabled !== false}
             onCheckedChange={(checked) => onToggle(provider.id, checked)}
           />
+          <button
+            onClick={() => onCheckStatus(provider.id)}
+            className="p-2 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-white/5 transition-all"
+            title="检查状态"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
+              <button className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                <MoreVertical className="w-4 h-4" />
+              </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onManageAccounts(provider.id)}>
-                <Users className="mr-2 h-4 w-4" />
-                {t('providers.accountManagement')} ({activeAccountCount}/{accountCount})
+            <DropdownMenuContent align="end" className="bg-[#1e2740] border-white/10">
+              <DropdownMenuItem onClick={() => onEdit(provider.id)} className="text-white hover:bg-white/5">
+                <Edit className="w-4 h-4 mr-2" /> {t('providers.editProvider')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onCheckStatus(provider.id)}>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                {t('providers.checkStatus')}
+              <DropdownMenuItem onClick={() => onDuplicate(provider.id)} className="text-white hover:bg-white/5">
+                <Copy className="w-4 h-4 mr-2" /> {t('providers.duplicateProvider')}
               </DropdownMenuItem>
-              {!isBuiltin && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => onEdit(provider.id)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    {t('providers.editProvider')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onDuplicate(provider.id)}>
-                    <Copy className="mr-2 h-4 w-4" />
-                    {t('providers.duplicateProvider')}
-                  </DropdownMenuItem>
-                </>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={() => onDelete(provider.id)}
-                className="text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                {t('providers.deleteProvider')}
+              <DropdownMenuSeparator className="bg-white/10" />
+              <DropdownMenuItem onClick={() => onDelete(provider.id)} className="text-red-400 hover:bg-red-500/10">
+                <Trash2 className="w-4 h-4 mr-2" /> {t('providers.deleteProvider')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center justify-between">
-          <div className="grid grid-cols-3 gap-4 text-sm flex-1">
-            <div className="flex flex-col">
-              <span className="text-muted-foreground text-xs">{t('providers.accounts')}</span>
-              <span className="font-medium">
-                {activeAccountCount} / {accountCount} {t('providers.online').toLowerCase()}
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-muted-foreground text-xs">{t('providers.models')}</span>
-              <span className="font-medium">
-                {provider.supportedModels?.length || 0}
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-muted-foreground text-xs">{t('providers.authType')}</span>
-              <span className="font-medium text-xs truncate">
-                {getAuthTypeLabel(provider.authType)}
-              </span>
-            </div>
-          </div>
-          
-          <Button
-            size="sm"
-            variant={accountCount === 0 ? 'default' : 'outline'}
-            onClick={() => onManageAccounts(provider.id)}
-            className="ml-4 shrink-0"
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all"
           >
-            {accountCount === 0 ? (
-              <>
-                <Plus className="h-4 w-4 mr-1" />
-                {t('providers.addAccount')}
-              </>
-            ) : (
-              <>
-                <LogIn className="h-4 w-4 mr-1" />
-                {t('providers.accountManagement')}
-              </>
-            )}
-          </Button>
+            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
         </div>
-      </CardContent>
-    </Card>
-  )
-}
+      </div>
 
-function getAuthTypeLabel(authType: string): string {
-  const labels: Record<string, string> = {
-    oauth: 'OAuth',
-    token: 'API Key',
-    cookie: 'Cookie',
-    userToken: 'User Token',
-    refresh_token: 'Refresh Token',
-    jwt: 'JWT',
-    realUserID_token: 'UserID+Token',
-    tongyi_sso_ticket: 'SSO Ticket',
-  }
-  return labels[authType] || authType
+      {/* 展开：账号管理 */}
+      {expanded && (
+        <div className="border-t border-white/5 bg-black/20 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">账号列表</span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onManageAccounts(provider.id)}
+              className="h-7 text-xs border-white/10 text-slate-300 hover:text-white hover:bg-white/5"
+            >
+              {accountCount === 0 ? (
+                <><Plus className="w-3 h-3 mr-1" /> 添加账号</>
+              ) : (
+                <><LogIn className="w-3 h-3 mr-1" /> 管理账号</>
+              )}
+            </Button>
+          </div>
+          {accountCount === 0 ? (
+            <p className="text-xs text-slate-500 text-center py-4">暂无账号，点击上方按钮添加</p>
+          ) : (
+            <p className="text-xs text-slate-400">{accountCount} 个账号，{activeAccountCount} 个活跃</p>
+          )}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default ProviderCard

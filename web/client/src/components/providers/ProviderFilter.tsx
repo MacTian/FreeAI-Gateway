@@ -165,10 +165,13 @@ export function ProviderFilter({
             <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
           </Button>
 
-          <Button onClick={onAddProvider}>
-            <Plus className="mr-2 h-4 w-4" />
+          <button
+            onClick={onAddProvider}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-400 text-[#0b1326] text-sm font-bold hover:opacity-90 active:scale-[0.98] transition-all"
+          >
+            <Plus className="h-4 w-4" />
             {t('providers.addProvider')}
-          </Button>
+          </button>
         </div>
       </div>
 

@@ -142,13 +142,34 @@ export async function forwardRequest(
 
   const { provider, account } = target
 
+  const startTime = Date.now()
   try {
     store.incrementAccountUsage(account.id)
     const result = await dispatchToProvider(provider, account, req, res)
+    const duration = Date.now() - startTime
+    store.addRequestLog({
+      id: crypto.randomUUID(),
+      providerId: provider.id,
+      accountId: account.id,
+      model: req.model,
+      success: result.success,
+      duration,
+      timestamp: Date.now(),
+    })
     return result
   } catch (err: any) {
+    const duration = Date.now() - startTime
     console.error('[Forwarder] Error:', err.message)
     store.updateAccount(account.id, { status: 'error', errorMessage: err.message })
+    store.addRequestLog({
+      id: crypto.randomUUID(),
+      providerId: provider.id,
+      accountId: account.id,
+      model: req.model,
+      success: false,
+      duration,
+      timestamp: Date.now(),
+    })
     return { success: false, error: err.message, statusCode: 502 }
   }
 }

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { ProxyStatus, ProxyStatistics, Provider, Account, ProviderCheckResult, LogEntry } from '@/types/electron'
 import type { ProviderStats, ActivityItem, ChartDataPoint } from '@/components/dashboard'
+import { api } from '@/api'
 
 interface DashboardStats {
   totalRequests: number
@@ -145,15 +146,15 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     setError(null)
 
     try {
-      const proxyStatusPromise = window.electronAPI?.proxy?.getStatus?.() ?? Promise.resolve(null)
+      const proxyStatusPromise = window.electronAPI?.proxy?.getStatus?.() ?? api.getProxyStatus().catch(() => null)
       const statisticsPromise = window.electronAPI?.invoke?.('proxy:getStatistics') ?? Promise.resolve(null)
       const persistentStatsPromise = window.electronAPI?.statistics?.get?.() ?? Promise.resolve(null)
       const providersPromise = window.electronAPI?.providers?.getAll?.() ?? Promise.resolve([])
       const accountsPromise = window.electronAPI?.accounts?.getAll?.() ?? Promise.resolve([])
       const providerStatusPromise = window.electronAPI?.providers?.checkAllStatus?.() ?? Promise.resolve({})
-      const logsPromise = window.electronAPI?.logs?.get?.({ limit: 10 }) ?? Promise.resolve([])
-      const trendPromise = window.electronAPI?.logs?.getTrend?.(7) ?? Promise.resolve([])
-      const requestLogTrendPromise = window.electronAPI?.requestLogs?.getTrend?.(7) ?? Promise.resolve([])
+      const logsPromise = window.electronAPI?.logs?.get?.({ limit: 10 }) ?? api.getLogs(10).catch(() => [])
+      const trendPromise = window.electronAPI?.logs?.getTrend?.(7) ?? fetch('/api/logs/trend?days=7').then(r => r.json()).catch(() => [])
+      const requestLogTrendPromise = window.electronAPI?.requestLogs?.getTrend?.(7) ?? fetch('/api/logs/trend?days=7').then(r => r.json()).catch(() => [])
 
       const [proxyStatus, statistics, persistentStats, providers, accounts, providerStatuses, logs, trends, requestLogTrends] = await Promise.all([
         proxyStatusPromise,
@@ -237,7 +238,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       })
 
       const providerUsage = persistentStats?.providerUsage ?? {}
-      const requestLogsPromise = window.electronAPI?.requestLogs?.get?.({ limit: 100 }) ?? Promise.resolve([])
+      const requestLogsPromise = window.electronAPI?.requestLogs?.get?.({ limit: 100 }) ?? api.getLogs(100).catch(() => [])
       const requestLogs = await requestLogsPromise as RequestLogEntry[]
       
       const providerSuccessCount: Record<string, number> = {}

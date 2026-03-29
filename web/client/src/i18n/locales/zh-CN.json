@@ -386,7 +386,7 @@
     "mappingUpdatedPending": "模型映射 {{model}} 已修改（待保存）",
     "mappingDeletedPending": "模型映射 {{model}} 已删除（待保存）",
     "configSaved": "模型映射配置已保存",
-    "configSaveFailed": "无法保存配置，请重试",
+    "configSaveFailed": "保存配置失败",
     "unsavedChangesWarning": "您有未保存的更改，确定要离开吗？",
     "unsavedChangesHint": "您有未保存的更改，请点击保存按钮保存",
     "unsavedChangesTitle": "有未保存的更改",
@@ -469,12 +469,7 @@
     "restartNow": "立即重启",
     "restarting": "正在重启...",
     "proxyRestarted": "代理服务已使用新配置重启",
-    "proxyRestartFailed": "代理服务重启失败",
-    "validationFailed": "验证失败",
-    "fixFormErrors": "请修正表单中的错误",
-    "proxyConfigUpdated": "代理配置已更新",
-    "configSaveFailed": "保存配置失败",
-    "saving": "保存中..."
+    "proxyRestartFailed": "代理服务重启失败"
   },
   "apiKeys": {
     "title": "API Key 管理",
@@ -690,7 +685,7 @@
     "resetFailed": "应用重置失败",
     "about": "关于",
     "aboutDesc": "应用程序信息和版本",
-    "appName": "Chat2API",
+    "appName": "FreeAI-Gateway",
     "appDesc": "多平台 AI 服务统一管理工具",
     "appVersion": "应用版本",
     "currentVersion": "当前版本",
@@ -973,5 +968,6 @@
     "sessionsClearFailed": "清空会话失败",
     "expiredCleaned": "已清理 {{count}} 个过期会话",
     "expiredCleanFailed": "清理过期会话失败"
-  }
+  },
+  "name": "FreeAI-Gateway"
 }

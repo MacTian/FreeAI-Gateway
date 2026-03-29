@@ -19,8 +19,10 @@ export function useTheme() {
         ? 'dark'
         : 'light'
       root.setAttribute('data-theme', systemTheme)
+      root.classList.toggle('dark', systemTheme === 'dark')
     } else {
       root.setAttribute('data-theme', theme)
+      root.classList.toggle('dark', theme === 'dark')
     }
   }, [theme])
 

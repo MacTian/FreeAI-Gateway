@@ -819,54 +819,7 @@ export function AddProviderDialog({
       <div className="border-t pt-4">
         <h4 className="text-sm font-medium mb-3">{t('providers.credentials')}</h4>
         
-        {supportsOAuth ? (
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="manual">{t('providers.manualInput')}</TabsTrigger>
-              <TabsTrigger value="oauth">{t('providers.oauthLogin')}</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="manual" className="mt-4">
-              {renderCredentialFields()}
-            </TabsContent>
-
-            <TabsContent value="oauth" className="mt-4">
-              <div className="flex flex-col items-center justify-center py-6 space-y-4">
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {t('providers.clickToOpenOAuth')}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {t('providers.oauthAutoCapture')}
-                  </p>
-                </div>
-                <Button 
-                  onClick={handleOpenOAuthBrowser}
-                  disabled={isOAuthLoading}
-                >
-                  {isOAuthLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {oauthStatus || t('providers.loggingIn')}
-                    </>
-                  ) : (
-                    <>
-                      <ExternalLink className="mr-2 h-4 w-4" />
-                      {t('providers.openOAuthLogin')}
-                    </>
-                  )}
-                </Button>
-                {oauthStatus && !isOAuthLoading && (
-                  <p className={`text-sm ${validationResult.valid ? 'text-green-600' : 'text-red-500'}`}>
-                    {oauthStatus}
-                  </p>
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
-        ) : (
-          renderCredentialFields()
-        )}
+        {renderCredentialFields()}
 
         {validationResult.error && (
           <div className="flex items-center gap-2 text-sm text-red-500 bg-red-50 p-3 rounded-lg mt-4">

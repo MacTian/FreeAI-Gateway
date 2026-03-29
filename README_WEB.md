@@ -1,7 +1,7 @@
-# FreeAI-Gateway
+# Chat2API Web Edition
 
 <p align="center">
-  <img src="build/icons.png" alt="FreeAI-Gateway Logo" width="128" height="128">
+  <img src="build/icons.png" alt="Chat2API Logo" width="128" height="128">
 </p>
 
 <p align="center">
@@ -98,7 +98,7 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/spf0209/FreeAI-Gateway
+git clone <this-repo>
 cd Chat2API
 
 # 安装依赖

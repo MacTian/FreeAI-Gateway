@@ -263,12 +263,13 @@ export function ProxyConfigForm({ onConfigChange }: ProxyConfigFormProps) {
           <CardDescription>{t('proxy.basicConfigDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 items-end">
             <div className="space-y-2">
               <Label>{t('proxy.listeningPort')}</Label>
-              <div className="flex items-center gap-2 h-9 px-3 rounded-md border bg-muted text-sm text-muted-foreground">
-                {t('proxy.internalMode') || '内置单端口模式（与管理界面共用同一端口）'}
+              <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-white/10 bg-white/5 text-sm text-slate-400">
+                统一端口，无法修改
               </div>
+              <p className="text-xs text-muted-foreground">与管理界面共用同一端口</p>
             </div>
             
             <div className="space-y-2">

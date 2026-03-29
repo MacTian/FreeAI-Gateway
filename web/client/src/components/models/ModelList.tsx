@@ -65,14 +65,37 @@ interface ModelRowProps {
 
 const PAGE_SIZE = 50
 
+// 根据模型名推断能力标签
+const getModelTags = (modelName: string): {label: string, color: string}[] => {
+  const name = modelName.toLowerCase()
+  const tags: {label: string, color: string}[] = []
+  if (name.includes('vision') || name.includes('vl') || name.includes('visual') || name.includes('image') || name.includes('omni') || name.includes('4o')) {
+    tags.push({ label: '多模态', color: 'text-violet-400 bg-violet-500/10 border-violet-500/20' })
+  } else if (name.includes('draw') || name.includes('cogview') || name.includes('flux') || name.includes('image-gen') || name.includes('dall')) {
+    tags.push({ label: '图像生成', color: 'text-pink-400 bg-pink-500/10 border-pink-500/20' })
+  } else {
+    tags.push({ label: '文本', color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' })
+  }
+  if (name.includes('think') || name.includes('reason') || name.includes('r1') || name.includes('o1') || name.includes('o3') || name.includes('qwq') || name.includes('deep')) {
+    tags.push({ label: '深度思考', color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' })
+  }
+  if (name.includes('128k') || name.includes('200k') || name.includes('1m') || name.includes('long') || name.includes('32k') || name.includes('64k')) {
+    tags.push({ label: '长文本', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' })
+  }
+  if (name.includes('turbo') || name.includes('flash') || name.includes('lite') || name.includes('air') || name.includes('mini') || name.includes('haiku')) {
+    tags.push({ label: '快速', color: 'text-blue-400 bg-blue-500/10 border-blue-500/20' })
+  }
+  return tags
+}
+
 const ModelRow = memo(({ model, isSelected, onSelect, t }: ModelRowProps) => {
   const providerIcon = providerIcons[model.providerId]
   
   return (
     <TableRow 
       className={cn(
-        'cursor-pointer hover:bg-muted/50',
-        isSelected && 'bg-muted'
+        'cursor-pointer border-white/5 hover:bg-white/5 transition-colors',
+        isSelected && 'bg-cyan-400/5 border-l-2 border-l-cyan-400'
       )}
       onClick={() => onSelect(model.id)}
     >
@@ -84,9 +107,16 @@ const ModelRow = memo(({ model, isSelected, onSelect, t }: ModelRowProps) => {
         )}
       </TableCell>
       <TableCell>
-        <code className="text-sm bg-muted px-2 py-1 rounded">
-          {model.name}
-        </code>
+        <div className="flex flex-col gap-1">
+          <code className="text-sm bg-white/5 text-cyan-300 px-2 py-0.5 rounded font-mono">
+            {model.name}
+          </code>
+          <div className="flex flex-wrap gap-1">
+            {getModelTags(model.name).map(tag => (
+              <span key={tag.label} className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${tag.color}`}>{tag.label}</span>
+            ))}
+          </div>
+        </div>
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">

@@ -1,253 +1,92 @@
-import { useState, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import {
-  Loader2,
-  Globe,
-  Download,
-  CheckCircle2,
-  AlertCircle,
-  Github,
-  FileText,
-  Bug,
-  Zap,
-} from 'lucide-react'
-import logoIcon from '@/assets/icons/icons.png'
-
-interface UpdateInfo {
-  hasUpdate: boolean
-  currentVersion: string
-  latestVersion: string
-  releaseUrl?: string
-  error?: string
-}
+import logoIcon from '@/assets/icons/logo.svg'
 
 export function About() {
-  const { t } = useTranslation()
-  const [appVersion, setAppVersion] = useState<string>('1.1.2')
-
-  useEffect(() => {
-    if (window.electronAPI?.app?.getVersion) {
-      window.electronAPI.app.getVersion().then((v: string) => {
-        if (v) setAppVersion(v)
-      })
-    }
-  }, [])
-
-  const [appUpdateStatus, setAppUpdateStatus] = useState<{
-    checking: boolean
-    result?: UpdateInfo
-  }>({ checking: false })
-
-  const handleCheckAppUpdate = async () => {
-    setAppUpdateStatus({ checking: true })
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      const latestVersion = appVersion
-      setAppUpdateStatus({
-        checking: false,
-        result: {
-          hasUpdate: false,
-          currentVersion: appVersion,
-          latestVersion,
-          releaseUrl: 'https://github.com/xiaoY233/Chat2API/releases',
-        },
-      })
-    } catch (error) {
-      setAppUpdateStatus({
-        checking: false,
-        result: {
-          hasUpdate: false,
-          currentVersion: appVersion,
-          latestVersion: appVersion,
-          error: String(error),
-        },
-      })
-    }
-  }
-
-  const handleDownloadAppUpdate = () => {
-    const url = appUpdateStatus.result?.releaseUrl || 'https://github.com/xiaoY233/Chat2API/releases'
-    if (window.electronAPI?.app?.openExternal) {
-      window.electronAPI.app.openExternal(url)
-    } else {
-      window.open(url, '_blank')
-    }
-  }
-
-  const handleOpenExternal = (url: string) => {
-    if (window.electronAPI?.app?.openExternal) {
-      window.electronAPI.app.openExternal(url)
-    } else {
-      window.open(url, '_blank')
-    }
-  }
-
-  const links = [
-    {
-      label: t('about.github'),
-      icon: Github,
-      url: 'https://github.com/xiaoY233/Chat2API',
-    },
-    {
-      label: t('about.documentation'),
-      icon: FileText,
-      url: 'https://chat2api-doc.vercel.app/',
-    },
-    {
-      label: t('about.reportIssue'),
-      icon: Bug,
-      url: 'https://github.com/xiaoY233/Chat2API/issues',
-    },
-  ]
+  const version = 'v1.0.0'
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
-      <div className="max-w-4xl mx-auto space-y-6 pb-12 px-4 animate-fade-in">
-        <div className="flex flex-col items-center justify-center py-10 text-center relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[var(--accent-primary)]/10 blur-[80px] rounded-full pointer-events-none" />
-
-          <div className="relative mb-6 animate-scale-in">
-            <div className="relative w-24 h-24 rounded-[2rem] glass-card p-4 shadow-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] overflow-hidden">
-              <img
-                src={logoIcon}
-                alt="Chat2API Logo"
-                className="w-full h-full object-contain drop-shadow-md"
-              />
-            </div>
+    <div className="min-h-[calc(100vh-48px)] flex flex-col items-center justify-center p-6 md:p-12 relative">
+      {/* About Card */}
+      <section className="w-full max-w-2xl bg-[#131b2e]/60 backdrop-blur-[40px] rounded-3xl p-10 border border-white/5 flex flex-col items-center text-center" style={{boxShadow:'inset 0.5px 0.5px 0 0 rgba(255,255,255,0.1)'}}>
+        {/* Logo */}
+        <div className="mb-8 relative">
+          <div className="w-28 h-28 rounded-[2rem] bg-gradient-to-tr from-[#131b2e] to-[#0b1326] border border-white/10 flex items-center justify-center shadow-xl mx-auto mb-5" style={{boxShadow:'inset 0.5px 0.5px 0 0 rgba(255,255,255,0.1)'}}>
+            <img src={logoIcon} alt="FreeAI-Gateway" className="w-20 h-20" />
           </div>
-
-          <div className="space-y-2 z-10">
-            <h1 className="text-4xl font-bold tracking-tight text-[var(--text-primary)]">
-              {t('settings.appName')}
-            </h1>
-            <p className="text-[var(--text-muted)] font-medium max-w-sm mx-auto">
-              {t('about.tagline')}
-            </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1 mt-3 rounded-full bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]" />
-              <span className="text-xs font-mono text-[var(--text-muted)]">
-                v{appVersion}
-              </span>
-            </div>
+          <h1 className="text-4xl font-light tracking-tighter text-cyan-400 font-headline">FreeAI-Gateway</h1>
+          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+            <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Version</span>
+            <span className="text-sm font-medium text-white">{version}</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
-          <div className="glass-card p-6 space-y-5">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-dim)] flex items-center gap-2">
-              <Globe className="w-3.5 h-3.5" />
-              {t('about.links')}
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {links.map((link) => (
-                <button
-                  key={link.label}
-                  onClick={() => handleOpenExternal(link.url)}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:bg-[var(--glass-bg-hover)] hover:border-[var(--glass-border-hover)] transition-all group cursor-pointer text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-1.5 rounded-lg bg-[var(--bg-tertiary)]/50 text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors">
-                      <link.icon className="w-3.5 h-3.5" />
-                    </div>
-                    <span className="text-sm text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors font-medium">
-                      {link.label}
-                    </span>
-                  </div>
-                  <div className="w-6 h-6 flex items-center justify-center rounded-full bg-[var(--bg-tertiary)]/30 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">
-                    <span className="text-[10px] text-[var(--text-primary)]">
-                      ↗
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
+        {/* 检查更新按钮 */}
+        <button className="group relative px-8 py-3.5 bg-cyan-400 text-[#0b1326] font-bold rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-cyan-400/20 mb-10">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[20px]" style={{fontFamily:'Material Symbols Outlined'}}>system_update</span>
+            <span>检查更新</span>
           </div>
+        </button>
+
+        {/* 链接网格 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mb-10">
+          <a
+            href="https://github.com/xiaoY233/Chat2API"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-cyan-400/30 transition-all duration-300 flex flex-col items-center gap-3"
+          >
+            <div className="w-10 h-10 rounded-full bg-[#1e2740] flex items-center justify-center text-slate-400 group-hover:text-cyan-400 group-hover:bg-cyan-400/10 transition-colors">
+              <span className="material-symbols-outlined" style={{fontFamily:'Material Symbols Outlined'}}>code</span>
+            </div>
+            <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">GitHub 代码仓库</span>
+          </a>
+          <a
+            href="#"
+            className="group p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-cyan-400/30 transition-all duration-300 flex flex-col items-center gap-3"
+          >
+            <div className="w-10 h-10 rounded-full bg-[#1e2740] flex items-center justify-center text-slate-400 group-hover:text-cyan-400 group-hover:bg-cyan-400/10 transition-colors">
+              <span className="material-symbols-outlined" style={{fontFamily:'Material Symbols Outlined'}}>description</span>
+            </div>
+            <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">文档中心</span>
+          </a>
+          <a
+            href="https://github.com/xiaoY233/Chat2API/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-cyan-400/30 transition-all duration-300 flex flex-col items-center gap-3"
+          >
+            <div className="w-10 h-10 rounded-full bg-[#1e2740] flex items-center justify-center text-slate-400 group-hover:text-cyan-400 group-hover:bg-cyan-400/10 transition-colors">
+              <span className="material-symbols-outlined" style={{fontFamily:'Material Symbols Outlined'}}>chat_bubble</span>
+            </div>
+            <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">反馈问题</span>
+          </a>
         </div>
 
-        <div className="glass-card p-6 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent-primary)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none transition-opacity opacity-50 group-hover:opacity-100" />
+        {/* 分隔线 */}
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8" />
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
-            <div className="space-y-1">
-              <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
-                <Zap className="w-4 h-4 text-[var(--accent-primary)]" />
-                {t('about.appUpdates')}
-              </h3>
-              <p className="text-xs text-[var(--text-muted)]">
-                {t('settings.currentVersion')}:{' '}
-                <span className="text-[var(--text-primary)] font-mono ml-1">
-                  {appUpdateStatus.result?.currentVersion || appVersion}
-                </span>
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {appUpdateStatus.checking ? (
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-muted)]">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm font-medium">{t('settings.checking')}</span>
-                </div>
-              ) : appUpdateStatus.result && !appUpdateStatus.result.error && appUpdateStatus.result.hasUpdate ? (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--success)]/10 shadow-[0_0_8px_var(--success)]">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--success)] opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--success)]"></span>
-                    </span>
-                    <span className="text-xs font-medium text-[var(--success)]">
-                      v{appUpdateStatus.result.latestVersion}
-                    </span>
-                  </div>
-                  <button
-                    onClick={handleDownloadAppUpdate}
-                    className="px-4 py-2 bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 text-white text-sm font-medium rounded-full transition-colors flex items-center gap-2 shadow-lg shadow-[var(--accent-primary)]/20"
-                  >
-                    <Download className="w-4 h-4" />
-                    {t('settings.downloadUpdate')}
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={handleCheckAppUpdate}
-                  className="px-4 py-2 bg-[var(--glass-bg)] hover:bg-[var(--glass-bg-hover)] border border-[var(--glass-border)] hover:border-[var(--glass-border-hover)] rounded-full text-sm text-[var(--text-primary)] font-medium transition-all duration-200 flex items-center gap-2"
-                >
-                  <Globe className="h-4 w-4 text-[var(--text-muted)]" />
-                  {t('settings.checkUpdates')}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {appUpdateStatus.result && !appUpdateStatus.checking && (
-            <div className="mt-4 pt-4 border-t border-[var(--glass-border)]">
-              {appUpdateStatus.result.error ? (
-                <div className="flex items-center gap-2 text-[var(--accent-error)]">
-                  <AlertCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">{t('settings.updateCheckFailed')}</span>
-                </div>
-              ) : !appUpdateStatus.result.hasUpdate ? (
-                <div className="flex items-center gap-2 text-[var(--accent-success)]">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span className="text-sm font-medium">{t('settings.upToDate')}</span>
-                </div>
-              ) : null}
-            </div>
-          )}
-        </div>
-
-        <div className="text-center space-y-3 pt-8 pb-4 border-t border-[var(--glass-border)] opacity-60">
-          <p className="text-[11px] font-bold tracking-[0.2em] text-[var(--text-dim)] uppercase">
-            {t('about.credits')}
+        {/* 底部版权 */}
+        <div className="space-y-2 text-center">
+          <p className="text-[11px] font-bold tracking-[0.2em] text-[#bcc9cd] uppercase">
+            由{' '}
+            <a
+              href="https://github.com/xiaoY233/Chat2API"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-cyan-400 hover:underline"
+            >Chat2API</a>
+            {' '}改版而来
           </p>
-          <p className="text-xs text-[var(--text-muted)] max-w-lg mx-auto leading-relaxed">
-            {t('about.builtWith')}
+          <p className="text-xs text-[#869397] max-w-lg mx-auto leading-relaxed">
+            基于 React、TypeScript、Tailwind CSS、Zustand、Express 等优秀的开源项目构建。
           </p>
-          <p className="text-[10px] text-[var(--text-dim)] font-mono">
-            © {new Date().getFullYear()} {t('settings.appName')} • GPL-3.0 License
+          <p className="text-[10px] text-[#869397] font-mono">
+            © {new Date().getFullYear()} FreeAI-Gateway • GPL-3.0 License
           </p>
         </div>
-      </div>
+      </section>
     </div>
   )
 }
+
+export default About

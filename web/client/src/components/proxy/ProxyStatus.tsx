@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { useProxyStore } from '@/stores/proxyStore'
+import { useProvidersStore } from '@/stores/providersStore'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import {
@@ -37,6 +38,7 @@ export function ProxyStatus({ onStatusChange }: ProxyStatusProps) {
     isLoading,
   } = useProxyStore()
   const { toast } = useToast()
+  const { providers } = useProvidersStore()
   
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -209,20 +211,23 @@ export function ProxyStatus({ onStatusChange }: ProxyStatusProps) {
 
           <div className="flex gap-3 pt-4">
             {!isRunning ? (
-              <Button onClick={handleStart} disabled={isLoading}>
-                <Play className="h-4 w-4 mr-2" />
+              <button
+                onClick={handleStart}
+                disabled={isLoading}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-400 text-[#0b1326] text-sm font-bold hover:opacity-90 disabled:opacity-50 transition-all"
+              >
+                <Play className="h-4 w-4" />
                 {t('dashboard.startProxy')}
-              </Button>
+              </button>
             ) : (
-              <Button
+              <button
                 onClick={handleStop}
                 disabled={isLoading}
-                variant="secondary"
-                className="bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-950/50 dark:text-orange-400 dark:hover:bg-orange-900/50"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-sm font-bold hover:bg-white/20 disabled:opacity-50 transition-all"
               >
-                <Square className="h-4 w-4 mr-2" />
+                <Square className="h-4 w-4" />
                 {t('dashboard.stopProxy')}
-              </Button>
+              </button>
             )}
           </div>
         </CardContent>
@@ -315,7 +320,7 @@ export function ProxyStatus({ onStatusChange }: ProxyStatusProps) {
                           >
                             <div className="flex items-center gap-2 min-w-0">
                               <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                              <span className="text-sm truncate" title={providerId}>{providerId}</span>
+                              <span className="text-sm truncate" title={providerId}>{providers.find(p => p.id === providerId)?.name || providerId}</span>
                             </div>
                             <div className="flex items-center gap-2 flex-shrink-0">
                               <Badge variant="secondary" className="text-xs h-5 px-1.5">

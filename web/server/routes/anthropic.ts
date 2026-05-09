@@ -212,11 +212,11 @@ anthropicRouter.post('/messages', apiKeyAuth, async (req: Request, res: Response
   const bodySize = JSON.stringify(body).length
   console.log(`[Anthropic] 收到请求, body大小: ${(bodySize / 1024).toFixed(1)}KB, messages: ${body.messages?.length || 0}`)
 
-  if (bodySize > 5 * 1024 * 1024) {
+  if (bodySize > 50 * 1024 * 1024) {
     console.error(`[Anthropic] 请求体过大: ${(bodySize / 1024 / 1024).toFixed(1)}MB`)
     return res.status(413).json({
       type: 'error',
-      error: { type: 'invalid_request_error', message: `Request body too large (${(bodySize / 1024 / 1024).toFixed(1)}MB). Maximum is 5MB.` },
+      error: { type: 'invalid_request_error', message: `Request body too large (${(bodySize / 1024 / 1024).toFixed(1)}MB). Maximum is 50MB.` },
     })
   }
 

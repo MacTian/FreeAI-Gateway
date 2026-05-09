@@ -263,18 +263,21 @@ anthropicRouter.post('/messages', apiKeyAuth, async (req: Request, res: Response
     res.setHeader('Connection', 'keep-alive')
     res.setHeader('Access-Control-Allow-Origin', '*')
 
-    // 拦截 forwardRequest 的流式输出
-    // forwardRequest 会直接 pipe 到 res，我们需要拦截中间的 OpenAI SSE
-    // 为此，创建一个代理 response 对象
+    // forwardRequest 需要一个 Express Response 对象（调用 setHeader 等方法）
+    // 创建一个代理对象，包装 PassThrough 流，模拟 Express Response 接口
     const { PassThrough } = await import('stream')
     const proxyStream = new PassThrough()
+    const proxyRes: any = proxyStream
+    proxyRes.setHeader = () => proxyRes  // no-op，headers 已在真实 res 上设置
+    proxyRes.status = () => proxyRes
+    proxyRes.json = (data: any) => { proxyRes.write(JSON.stringify(data)); return proxyRes }
+    proxyRes.headersSent = false
 
-    // forwardRequest 会往 proxyStream 写 OpenAI SSE
-    // 我们把 proxyStream 转成 Anthropic SSE 写到真正的 res
-    handleAnthropicStream(proxyStream as any, res, requestModel, requestId)
+    // 把 proxyStream 的 OpenAI SSE 转成 Anthropic SSE 写到真实 res
+    handleAnthropicStream(proxyStream, res, requestModel, requestId)
 
     try {
-      const result = await forwardRequest(openaiBody, proxyStream as any)
+      const result = await forwardRequest(openaiBody, proxyRes)
       const duration = Date.now() - startTime
 
       store.incrementStats(duration, result.success)

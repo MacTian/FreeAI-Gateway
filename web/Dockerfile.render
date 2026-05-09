@@ -1,0 +1,46 @@
+# ---- 构建前端 ----
+FROM node:20-alpine AS client-builder
+WORKDIR /app/client
+COPY web/client/package*.json ./
+RUN npm install --legacy-peer-deps
+COPY web/client/ ./
+RUN npm run build && ls -la dist/
+
+# ---- 构建后端 ----
+FROM node:20-alpine AS server-builder
+WORKDIR /app/server
+COPY web/server/package*.json ./
+RUN npm install --legacy-peer-deps
+COPY web/server/ ./
+
+# ---- 最终镜像 ----
+FROM node:20-alpine
+WORKDIR /app
+
+# 安装 curl 用于健康检查
+RUN apk add --no-cache curl
+
+# 复制后端（含 node_modules）
+COPY --from=server-builder /app/server ./server
+
+# 复制构建好的前端静态文件
+COPY --from=client-builder /app/client/dist ./client/dist
+
+# 复制 WASM 文件（DeepSeek 需要）
+COPY sha3_wasm_bg.7b9ca65ddd.wasm ./server/
+
+# 确认文件结构
+RUN echo "=== File structure ===" && \
+    ls -la ./server/ && \
+    echo "=== Client dist ===" && \
+    ls -la ./client/dist/ && \
+    echo "=== tsx check ===" && \
+    ls -la ./server/node_modules/.bin/tsx
+
+EXPOSE 3000
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+WORKDIR /app/server
+CMD ["node_modules/.bin/tsx", "index.ts"]

@@ -65,8 +65,8 @@ export class DeepSeekStreamHandler {
     }
   }
 
-  private createChunk(delta: { role?: string; content?: string; reasoning_content?: string; tool_calls?: any[] }, finishReason?: string): string {
-    return `data: ${JSON.stringify({
+  private createChunk(delta: { role?: string; content?: string; reasoning_content?: string; tool_calls?: any[] }, finishReason?: string, usage?: any): string {
+    const chunk: any = {
       id: `${this.sessionId}@${this.messageId}`,
       model: this.model,
       object: 'chat.completion.chunk',
@@ -76,7 +76,9 @@ export class DeepSeekStreamHandler {
         finish_reason: finishReason || null,
       }],
       created: this.created,
-    })}\n\n`
+    }
+    if (usage) chunk.usage = usage
+    return `data: ${JSON.stringify(chunk)}\n\n`
   }
 
   async handleStream(stream: NodeJS.ReadableStream): Promise<NodeJS.ReadableStream> {
@@ -342,7 +344,10 @@ export class DeepSeekStreamHandler {
     // Determine finish_reason based on whether we had tool calls
     const finishReason = this.toolCallState.hasEmittedToolCall ? 'tool_calls' : 'stop'
 
-    transStream.write(this.createChunk({}, finishReason))
+    // 发送带 usage 的最后一个 chunk
+    // DeepSeek 的 accumulated_token_usage 是总数，近似作为 completion_tokens
+    const usage = { prompt_tokens: 0, completion_tokens: this.accumulatedTokenUsage, total_tokens: this.accumulatedTokenUsage }
+    transStream.write(this.createChunk({}, finishReason, usage))
     transStream.write('data: [DONE]\n\n')
     transStream.end()
     
@@ -499,7 +504,7 @@ export class DeepSeekStreamHandler {
             message,
             finish_reason: toolCalls.length > 0 ? 'tool_calls' : 'stop',
           }],
-          usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: accumulatedTokenUsage },
+          usage: { prompt_tokens: 0, completion_tokens: accumulatedTokenUsage, total_tokens: accumulatedTokenUsage },
           created: this.created,
         })
       })

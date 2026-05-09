@@ -356,7 +356,7 @@ export const store = {
   },
   getSessionConfig(): any {
     const config = this.getConfig()
-    return config.sessionConfig || { mode: 'single', sessionTimeout: 30, maxMessagesPerSession: 50, deleteAfterTimeout: true, maxSessionsPerAccount: 3 }
+    return config.sessionConfig || { mode: 'multi', sessionTimeout: 30, maxMessagesPerSession: 100, deleteAfterTimeout: true, maxSessionsPerAccount: 5 }
   },
   updateSessionConfig(updates: any): any {
     const config = this.getConfig()

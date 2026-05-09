@@ -32,8 +32,11 @@
 
 - OpenAI 兼容 API：提供标准 OpenAI 兼容接口，无缝对接现有工具
 - 多服务商支持：支持 DeepSeek、GLM、Kimi、MiniMax、Perplexity 🆕、Qwen、Z.ai 等
-- 🆕 多轮对话支持：完整支持多轮对话，提供会话管理和上下文保持功能
+- 🆕 多轮对话支持：完整支持多轮对话，提供会话管理和上下文保持功能，默认 multi 模式
 - 🆕 工具调用支持：通过提示词工程为所有模型提供通用工具调用能力，兼容 Cherry Studio、Kilo Code 等客户端
+- 🆕 **Agent 多轮工具调用**：完整支持 Anthropic ↔ OpenAI 工具调用格式双向转换（`tool_use` ↔ `tool_calls`，`tool_result` ↔ `role: tool`），Claude Code 等 agent 客户端可在一个会话中执行多轮工具调用
+- 🆕 **Anthropic tools 透传**：`tools` 定义（`input_schema` → `parameters`）和 `tool_choice` 正确转换
+- 🆕 **流式 tool_use**：Anthropic 流式响应中 `content_block_start`/`content_block_delta`（`input_json_delta`）正确输出 tool_use blocks
 - 🆕 模型映射：灵活的模型名称映射，支持通配符和首选服务商/账户选择
 - 🆕 自定义参数：支持自定义 HTTP Header 开启联网搜索、深度思考、深度研究等功能
 - 仪表盘监控：实时请求流量、Token 使用量和成功率统计

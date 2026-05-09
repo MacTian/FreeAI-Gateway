@@ -26,21 +26,104 @@ function normalizeContent(content: any): string {
   return String(content || '')
 }
 
+// 从 Anthropic content blocks 中提取 tool_use blocks
+function extractToolUseBlocks(content: any): any[] {
+  if (!Array.isArray(content)) return []
+  return content.filter((block: any) => block.type === 'tool_use')
+}
+
+// 从 Anthropic content blocks 中提取 tool_result blocks (role=user 时的工具返回)
+function extractToolResultMessages(msg: any): { toolResultMessages: any[], hasTextContent: boolean } {
+  if (!Array.isArray(msg.content)) {
+    return { toolResultMessages: [], hasTextContent: !!msg.content }
+  }
+
+  const toolResultBlocks = msg.content.filter((block: any) => block.type === 'tool_result')
+  const otherBlocks = msg.content.filter((block: any) => block.type !== 'tool_result')
+
+  // 每个 tool_result 变成一个独立的 user 消息（带 tool_call_id）
+  const toolResultMessages = toolResultBlocks.map((block: any) => ({
+    role: 'tool',
+    tool_call_id: block.tool_use_id || '',
+    content: typeof block.content === 'string' ? block.content : JSON.stringify(block.content),
+  }))
+
+  return {
+    toolResultMessages,
+    hasTextContent: otherBlocks.length > 0,
+  }
+}
+
 // Anthropic → OpenAI 请求转换
 function convertAnthropicToOpenAI(body: any) {
   const messages: any[] = []
 
   // Anthropic 的 system 是顶级字段，OpenAI 放在 messages[0]
   if (body.system) {
-    messages.push({ role: 'system', content: typeof body.system === 'string' ? body.system : normalizeContent(body.system) })
+    messages.push({
+      role: 'system',
+      content: typeof body.system === 'string' ? body.system : normalizeContent(body.system),
+    })
   }
 
   // 转换 messages
   for (const msg of body.messages || []) {
-    messages.push({
-      role: msg.role,
-      content: normalizeContent(msg.content),
-    })
+    if (msg.role === 'assistant') {
+      // assistant 消息：需要保留 tool_calls（Anthropic 格式是 content 中的 tool_use blocks）
+      const toolUseBlocks = extractToolUseBlocks(msg.content)
+
+      if (toolUseBlocks.length > 0) {
+        // 有工具调用：转成 OpenAI 的 tool_calls 格式
+        const toolCalls = toolUseBlocks.map((block: any, idx: number) => ({
+          id: block.id || `call_${idx}`,
+          type: 'function',
+          function: {
+            name: block.name || '',
+            arguments: typeof block.input === 'string' ? block.input : JSON.stringify(block.input || {}),
+          },
+        }))
+
+        const textContent = normalizeContent(msg.content)
+        messages.push({
+          role: 'assistant',
+          content: textContent || null,
+          tool_calls: toolCalls,
+        })
+      } else {
+        // 普通 assistant 消息
+        messages.push({
+          role: 'assistant',
+          content: normalizeContent(msg.content),
+        })
+      }
+    } else if (msg.role === 'user') {
+      // user 消息：需要检查是否包含 tool_result blocks
+      if (Array.isArray(msg.content)) {
+        const { toolResultMessages, hasTextContent } = extractToolResultMessages(msg)
+
+        // 先添加 tool 角色的消息（每个 tool_result 一个）
+        messages.push(...toolResultMessages)
+
+        // 如果还有普通文本内容，添加 user 消息
+        if (hasTextContent) {
+          const textBlocks = msg.content.filter((block: any) => block.type !== 'tool_result')
+          messages.push({
+            role: 'user',
+            content: normalizeContent(textBlocks),
+          })
+        }
+      } else {
+        messages.push({
+          role: 'user',
+          content: normalizeContent(msg.content),
+        })
+      }
+    } else {
+      messages.push({
+        role: msg.role,
+        content: normalizeContent(msg.content),
+      })
+    }
   }
 
   const openaiBody: any = {
@@ -54,13 +137,63 @@ function convertAnthropicToOpenAI(body: any) {
   if (body.top_p !== undefined) openaiBody.top_p = body.top_p
   if (body.stop_sequences) openaiBody.stop = body.stop_sequences
 
+  // 透传 tools 定义（Anthropic → OpenAI 格式转换）
+  if (body.tools && Array.isArray(body.tools)) {
+    openaiBody.tools = body.tools.map((tool: any) => {
+      // Anthropic 格式: { name, description, input_schema }
+      // OpenAI 格式: { type: 'function', function: { name, description, parameters } }
+      if (tool.type === 'function') return tool // 已经是 OpenAI 格式
+      return {
+        type: 'function',
+        function: {
+          name: tool.name || '',
+          description: tool.description || '',
+          parameters: tool.input_schema || {},
+        },
+      }
+    })
+  }
+
+  if (body.tool_choice) {
+    if (typeof body.tool_choice === 'object' && body.tool_choice.type === 'auto') {
+      openaiBody.tool_choice = 'auto'
+    } else if (typeof body.tool_choice === 'object' && body.tool_choice.type === 'any') {
+      openaiBody.tool_choice = 'required'
+    } else if (typeof body.tool_choice === 'object' && body.tool_choice.name) {
+      openaiBody.tool_choice = {
+        type: 'function',
+        function: { name: body.tool_choice.name },
+      }
+    } else {
+      openaiBody.tool_choice = body.tool_choice
+    }
+  }
+
   return openaiBody
+}
+
+// OpenAI tool_call → Anthropic tool_use content block
+function openaiToolCallToAnthropicToolUse(tc: any, index: number) {
+  return {
+    type: 'tool_use',
+    id: tc.id || `toolu_${randomUUID().replace(/-/g, '').slice(0, 24)}`,
+    name: tc.function?.name || '',
+    input: (() => {
+      try {
+        return JSON.parse(tc.function?.arguments || '{}')
+      } catch {
+        return {}
+      }
+    })(),
+  }
 }
 
 // OpenAI → Anthropic 非流式响应转换
 function convertOpenAIToAnthropic(openaiResponse: any, requestModel: string) {
   const choice = openaiResponse.choices?.[0]
-  const content = choice?.message?.content || ''
+  const message = choice?.message
+  const content = message?.content
+  const toolCalls = message?.tool_calls
   const finishReason = choice?.finish_reason || 'stop'
 
   const stopReasonMap: Record<string, string> = {
@@ -70,11 +203,31 @@ function convertOpenAIToAnthropic(openaiResponse: any, requestModel: string) {
     content_filter: 'end_turn',
   }
 
+  // 构建 Anthropic content blocks
+  const anthropicContent: any[] = []
+
+  // 如果有 tool_calls，先添加文本内容（如果有），然后添加 tool_use blocks
+  if (toolCalls && toolCalls.length > 0) {
+    if (content) {
+      anthropicContent.push({ type: 'text', text: content })
+    }
+    for (let i = 0; i < toolCalls.length; i++) {
+      anthropicContent.push(openaiToolCallToAnthropicToolUse(toolCalls[i], i))
+    }
+  } else if (content) {
+    anthropicContent.push({ type: 'text', text: content })
+  }
+
+  // 确保至少有一个 content block
+  if (anthropicContent.length === 0) {
+    anthropicContent.push({ type: 'text', text: '' })
+  }
+
   return {
     id: openaiResponse.id || `msg_${randomUUID().replace(/-/g, '').slice(0, 24)}`,
     type: 'message',
     role: 'assistant',
-    content: [{ type: 'text', text: content }],
+    content: anthropicContent,
     model: requestModel,
     stop_reason: stopReasonMap[finishReason] || 'end_turn',
     usage: {
@@ -92,10 +245,19 @@ function writeSSE(res: Response, event: string, data: any) {
 // OpenAI → Anthropic 流式响应转换
 function handleAnthropicStream(openaiRes: Response, anthropicRes: Response, requestModel: string, requestId: string) {
   let started = false
-  let blockStarted = false
+  let textBlockIndex: number | null = null // 当前 text content block 的 index
   let inputTokens = 0
   let outputTokens = 0
   let buf = ''
+  let toolCallBuffers: Map<number, {
+    id: string
+    name: string
+    arguments: string
+    contentBlockIndex: number
+    blockStarted: boolean
+  }> = new Map()
+  let nextContentBlockIndex = 0
+  let pendingStopReason: string | null = null
 
   // 发送 message_start
   writeSSE(anthropicRes, 'message_start', {
@@ -111,6 +273,32 @@ function handleAnthropicStream(openaiRes: Response, anthropicRes: Response, requ
     },
   })
 
+  function finalizeStream(stopReason: string) {
+    if (anthropicRes.writableEnded) return
+
+    // 关闭所有未完成的 tool_use blocks
+    for (const [, tc] of toolCallBuffers) {
+      if (tc.blockStarted) {
+        writeSSE(anthropicRes, 'content_block_stop', { type: 'content_block_stop', index: tc.contentBlockIndex })
+      }
+    }
+    toolCallBuffers.clear()
+
+    // 关闭 text block
+    if (textBlockIndex !== null) {
+      writeSSE(anthropicRes, 'content_block_stop', { type: 'content_block_stop', index: textBlockIndex })
+      textBlockIndex = null
+    }
+
+    writeSSE(anthropicRes, 'message_delta', {
+      type: 'message_delta',
+      delta: { stop_reason: stopReason, stop_sequence: null },
+      usage: { output_tokens: outputTokens },
+    })
+    writeSSE(anthropicRes, 'message_stop', { type: 'message_stop' })
+    anthropicRes.end()
+  }
+
   openaiRes.on('data', (chunk: Buffer) => {
     buf += chunk.toString()
     const lines = buf.split('\n')
@@ -120,17 +308,7 @@ function handleAnthropicStream(openaiRes: Response, anthropicRes: Response, requ
       if (!line.startsWith('data: ')) continue
       const data = line.slice(6).trim()
       if (data === '[DONE]') {
-        // 结束
-        if (blockStarted) {
-          writeSSE(anthropicRes, 'content_block_stop', { type: 'content_block_stop', index: 0 })
-        }
-        writeSSE(anthropicRes, 'message_delta', {
-          type: 'message_delta',
-          delta: { stop_reason: 'end_turn', stop_sequence: null },
-          usage: { output_tokens: outputTokens },
-        })
-        writeSSE(anthropicRes, 'message_stop', { type: 'message_stop' })
-        anthropicRes.end()
+        finalizeStream(pendingStopReason || 'end_turn')
         return
       }
 
@@ -144,42 +322,86 @@ function handleAnthropicStream(openaiRes: Response, anthropicRes: Response, requ
           outputTokens = parsed.usage.completion_tokens || outputTokens
         }
 
+        // 处理文本内容
         if (delta?.content) {
-          if (!blockStarted) {
-            blockStarted = true
+          if (textBlockIndex === null) {
+            textBlockIndex = nextContentBlockIndex++
             writeSSE(anthropicRes, 'content_block_start', {
               type: 'content_block_start',
-              index: 0,
+              index: textBlockIndex,
               content_block: { type: 'text', text: '' },
             })
           }
           writeSSE(anthropicRes, 'content_block_delta', {
             type: 'content_block_delta',
-            index: 0,
+            index: textBlockIndex,
             delta: { type: 'text_delta', text: delta.content },
           })
+        }
+
+        // 处理 tool_calls（流式聚合）
+        if (delta?.tool_calls) {
+          for (const tc of delta.tool_calls) {
+            const idx = tc.index
+            if (idx === undefined) continue
+
+            let buffered = toolCallBuffers.get(idx)
+            if (!buffered) {
+              buffered = {
+                id: tc.id || `toolu_${randomUUID().replace(/-/g, '').slice(0, 24)}`,
+                name: tc.function?.name || '',
+                arguments: tc.function?.arguments || '',
+                contentBlockIndex: nextContentBlockIndex++,
+                blockStarted: false,
+              }
+              toolCallBuffers.set(idx, buffered)
+            } else {
+              if (tc.id) buffered.id = tc.id
+              if (tc.function?.name) buffered.name = tc.function.name
+              if (tc.function?.arguments) buffered.arguments += tc.function.arguments
+            }
+
+            // 当 name 到达时，发送 content_block_start
+            if (!buffered.blockStarted && buffered.name) {
+              buffered.blockStarted = true
+              // 先关闭 text block（如果有）
+              if (textBlockIndex !== null) {
+                writeSSE(anthropicRes, 'content_block_stop', { type: 'content_block_stop', index: textBlockIndex })
+                textBlockIndex = null
+              }
+              writeSSE(anthropicRes, 'content_block_start', {
+                type: 'content_block_start',
+                index: buffered.contentBlockIndex,
+                content_block: {
+                  type: 'tool_use',
+                  id: buffered.id,
+                  name: buffered.name,
+                  input: {},
+                },
+              })
+            }
+
+            // 当 arguments 到达时，发送 input_json_delta
+            if (buffered.blockStarted && tc.function?.arguments) {
+              writeSSE(anthropicRes, 'content_block_delta', {
+                type: 'content_block_delta',
+                index: buffered.contentBlockIndex,
+                delta: { type: 'input_json_delta', partial_json: tc.function.arguments },
+              })
+            }
+          }
         }
 
         // 处理 finish_reason
         if (parsed.choices?.[0]?.finish_reason) {
           const finishReason = parsed.choices[0].finish_reason
-          if (blockStarted) {
-            writeSSE(anthropicRes, 'content_block_stop', { type: 'content_block_stop', index: 0 })
-            blockStarted = false
-          }
           const stopReasonMap: Record<string, string> = {
             stop: 'end_turn',
             length: 'max_tokens',
             tool_calls: 'tool_use',
           }
-          writeSSE(anthropicRes, 'message_delta', {
-            type: 'message_delta',
-            delta: { stop_reason: stopReasonMap[finishReason] || 'end_turn', stop_sequence: null },
-            usage: { output_tokens: outputTokens },
-          })
-          writeSSE(anthropicRes, 'message_stop', { type: 'message_stop' })
-          anthropicRes.end()
-          return
+          pendingStopReason = stopReasonMap[finishReason] || 'end_turn'
+          // 不立即结束，等 [DONE] 或 stream end 时 finalize
         }
       } catch { /* ignore parse errors */ }
     }
@@ -192,16 +414,7 @@ function handleAnthropicStream(openaiRes: Response, anthropicRes: Response, requ
 
   openaiRes.on('end', () => {
     if (!anthropicRes.writableEnded) {
-      if (blockStarted) {
-        writeSSE(anthropicRes, 'content_block_stop', { type: 'content_block_stop', index: 0 })
-      }
-      writeSSE(anthropicRes, 'message_delta', {
-        type: 'message_delta',
-        delta: { stop_reason: 'end_turn', stop_sequence: null },
-        usage: { output_tokens: outputTokens },
-      })
-      writeSSE(anthropicRes, 'message_stop', { type: 'message_stop' })
-      anthropicRes.end()
+      finalizeStream(pendingStopReason || 'end_turn')
     }
   })
 }

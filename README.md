@@ -69,17 +69,22 @@
 - **工具调用**：修复流式 `[function_calls]` 分块导致的重复 emit
 - **单端口架构**：前后端统一端口，`.env` 控制开发端口，无硬编码
 - **账号状态**：更新 credentials 后自动验证有效性
+- **🆕 Agent 多轮工具调用**：完整支持 Anthropic ↔ OpenAI 工具调用格式转换（`tool_use` ↔ `tool_calls`，`tool_result` ↔ `role: tool`），Claude Code 等 agent 客户端可在一个会话中执行多轮工具调用
+- **🆕 Anthropic tools 透传**：`tools` 定义（`input_schema` → `parameters`）和 `tool_choice` 正确转换
+- **🆕 流式 tool_use**：Anthropic 流式响应中 `content_block_start`/`content_block_delta`（`input_json_delta`）正确输出 tool_use blocks
+- **🆕 默认多轮会话**：Session 模式默认从 `single` 改为 `multi`，`maxMessagesPerSession` 提升至 100，agent 对话开箱即用
 
 ---
 
 ## 功能特性
 
 - ✅ **OpenAI 兼容 API**：标准 `/v1/chat/completions` 接口，无缝接入 Cherry Studio、Kilo Code、Cline 等
-- ✅ **Anthropic 兼容 API**：`/v1/messages` 接口，支持 Claude Code 等 Anthropic SDK 客户端
+- ✅ **Anthropic 兼容 API**：`/v1/messages` 接口，支持 Claude Code 等 Anthropic SDK 客户端，完整 tool_calls ↔ tool_use 双向转换
 - ✅ **多供应商支持**：GLM、Kimi、Qwen、MiniMax、Z.ai、DeepSeek、Perplexity
-- ✅ **多轮对话**：完整会话管理，上下文保留
+- ✅ **多轮对话**：完整会话管理，上下文保留，默认 multi 模式
+- ✅ **Agent 多轮工具调用**：Anthropic `tool_use`/`tool_result` content blocks ↔ OpenAI `tool_calls`/`role: tool` 消息完整转换
 - ✅ **Function Calling**：通用工具调用，prompt engineering 实现，兼容所有模型
-- ✅ **流式输出**：SSE 实时流式响应
+- ✅ **流式输出**：SSE 实时流式响应，支持 tool_use content_block 流式输出
 - ✅ **图像生成**：GLM cogview，图片 URL 正确返回
 - ✅ **模型映射**：灵活的模型名称映射，支持通配符
 - ✅ **API Key 管理**：多 Key 轮询，权限控制
@@ -163,15 +168,15 @@ docker compose -f web/docker-compose.yml up -d --force-recreate
 
 ## 供应商状态
 
-| 供应商 | 对话 | 工具调用 | 图像生成 | 状态 |
-|--------|------|----------|----------|------|
-| GLM (智谱清言) | ✅ | ✅ | ✅ cogview | 稳定 |
-| Kimi | ✅ | ✅ | — | 稳定 |
-| Qwen (通义千问) | ✅ | ✅ | — | 稳定 |
-| MiniMax | ✅ | — | — | 稳定 |
-| Z.ai | ✅ | — | — | 稳定 |
-| DeepSeek | ✅ | — | — | 稳定 |
-| Perplexity | ✅ | — | — | 不稳定（Cloudflare 拦截） |
+| 供应商 | 对话 | 工具调用（OpenAI） | 工具调用（Anthropic） | 图像生成 | 状态 |
+|--------|------|---------------------|----------------------|----------|------|
+| GLM (智谱清言) | ✅ | ✅ | ✅ 通过 Anthropic API | ✅ cogview | 稳定 |
+| Kimi | ✅ | ✅ | ✅ 通过 Anthropic API | — | 稳定 |
+| Qwen (通义千问) | ✅ | ✅ | ✅ 通过 Anthropic API | — | 稳定 |
+| MiniMax | ✅ | — | — | — | 稳定 |
+| Z.ai | ✅ | — | — | — | 稳定 |
+| DeepSeek | ✅ | — | — | — | 稳定 |
+| Perplexity | ✅ | — | — | — | 不稳定（Cloudflare 拦截） |
 
 > Token 有效期因平台而异，过期后在管理界面更新即可。
 

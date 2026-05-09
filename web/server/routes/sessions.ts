@@ -25,7 +25,7 @@ sessionsRouter.post('/sessions/clean', (_req, res) => {
 sessionsRouter.get('/sessions/config', (_req, res) => {
   try {
     const config = store.getConfig()
-    res.json(config.sessionConfig || { maxSessions: 10, sessionTimeout: 3600000, cleanupInterval: 300000 })
+    res.json(config.sessionConfig || { mode: 'multi', sessionTimeout: 30, maxMessagesPerSession: 100, deleteAfterTimeout: true, maxSessionsPerAccount: 5 })
   } catch (e: any) { res.status(500).json({ error: e.message }) }
 })
 

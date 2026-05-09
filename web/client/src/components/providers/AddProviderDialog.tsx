@@ -144,12 +144,10 @@ export function AddProviderDialog({
       apiEndpoint: 'https://chat.deepseek.com/api',
       enabled: true,
       description: t('deepseek.description'),
-      supportedModels: ['DeepSeek-V3.2', 'DeepSeek-R1', 'DeepSeek-Search', 'DeepSeek-R1-Search'],
+      supportedModels: ['deepseek-v4-pro', 'deepseek-v4-flash'],
       modelMappings: {
-        'DeepSeek-V3.2': 'deepseek-chat',
-        'DeepSeek-R1': 'deepseek-chat',
-        'DeepSeek-Search': 'deepseek-chat',
-        'DeepSeek-R1-Search': 'deepseek-chat',
+        'deepseek-v4-pro': 'deepseek-v4-pro',
+        'deepseek-v4-flash': 'deepseek-v4-flash',
       },
       headers: {
         'Content-Type': 'application/json',

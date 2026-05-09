@@ -75,6 +75,7 @@
 ## 功能特性
 
 - ✅ **OpenAI 兼容 API**：标准 `/v1/chat/completions` 接口，无缝接入 Cherry Studio、Kilo Code、Cline 等
+- ✅ **Anthropic 兼容 API**：`/v1/messages` 接口，支持 Claude Code 等 Anthropic SDK 客户端
 - ✅ **多供应商支持**：GLM、Kimi、Qwen、MiniMax、Z.ai、DeepSeek、Perplexity
 - ✅ **多轮对话**：完整会话管理，上下文保留
 - ✅ **Function Calling**：通用工具调用，prompt engineering 实现，兼容所有模型
@@ -125,6 +126,24 @@ cd web/server && npm run dev
 # 开发模式同时启动前端热更新（可选，端口 3013）
 cd web/client && npm run dev
 ```
+
+### Claude Code 集成
+
+本项目支持 Anthropic 兼容 API，可直接作为 Claude Code 的后端：
+
+```bash
+# 使用环境变量配置
+export ANTHROPIC_BASE_URL=https://your-gateway-url.com
+export ANTHROPIC_API_KEY=sk-your-api-key
+claude
+
+# 或一行启动
+ANTHROPIC_BASE_URL=https://your-gateway-url.com ANTHROPIC_API_KEY=sk-your-api-key claude
+```
+
+在管理界面配置模型映射，将 Claude 模型名映射到实际供应商模型：
+- `claude-sonnet-4-20250514` → `deepseek-v4-pro`
+- `claude-haiku-4-20251001` → `deepseek-v4-flash`
 
 ### 更新部署
 

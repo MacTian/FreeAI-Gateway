@@ -25,7 +25,17 @@
 
 ## Phase 3 — 集成
 
-- [ ] 用 OpenAI SDK 连接 http://localhost:8080/v1，发送 chat 请求成功返回
+- [ ] 用 OpenAI SDK 连接 http://localhost:3000/v1，发送 chat 请求成功返回
 - [ ] 代理启动后，转发 DeepSeek/Kimi 等请求正常
 - [ ] Docker 部署后，重启容器数据不丢失（volume 挂载验证）
 - [ ] SSE 推送：代理状态变化前端实时更新
+
+## Phase 4 — Anthropic 兼容 API
+
+- [ ] POST /v1/messages 非流式：发送请求，返回 Anthropic 格式响应
+- [ ] POST /v1/messages 流式：发送 stream 请求，返回 Anthropic SSE 事件序列
+- [ ] Anthropic 请求中的 system 字段正确转换为 OpenAI messages[0]
+- [ ] Anthropic stop_sequences 映射为 OpenAI stop 参数
+- [ ] 流式事件顺序正确：message_start → content_block_start → content_block_delta → content_block_stop → message_delta → message_stop
+- [ ] API Key 验证：x-api-key 和 Authorization header 均可使用
+- [ ] 模型映射：Claude 模型名正确映射到实际供应商模型

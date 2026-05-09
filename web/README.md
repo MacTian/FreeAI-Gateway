@@ -60,6 +60,8 @@ open http://localhost:3000
 | GET | /api/models | 可用模型列表 |
 | GET/POST/DELETE | /api/keys | API Key 管理 |
 | GET/DELETE | /api/logs | 请求日志 |
+| POST | /v1/chat/completions | OpenAI 兼容 API |
+| POST | /v1/messages | Anthropic 兼容 API（Claude Code）|
 
 ## 与桌面版的差异
 

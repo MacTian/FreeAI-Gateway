@@ -15,6 +15,7 @@ import { modelsRouter } from './routes/models.js'
 import { appRouter } from './routes/app.js'
 import { oauthRouter } from './routes/oauth.js'
 import { v1Router } from './routes/v1.js'
+import { anthropicRouter } from './routes/anthropic.js'
 import { sessionsRouter } from './routes/sessions.js'
 import { promptsRouter } from './routes/prompts.js'
 import { managementRouter } from './routes/management.js'
@@ -60,6 +61,9 @@ app.use('/api', managementRouter)
 
 // OpenAI 兼容 API
 app.use('/v1', v1Router)
+
+// Anthropic 兼容 API (Claude Code)
+app.use('/v1', anthropicRouter)
 
 // Serve frontend static files (必须放在 /api 和 /v1 路由之后，不然会把 /v1/models 吃成 index.html)
 const clientDist = join(dirname(fileURLToPath(import.meta.url)), '../client/dist')

@@ -11,7 +11,7 @@ import { selectTarget } from '../proxy/loadbalancer.js'
 export const v1Router = Router()
 
 // API Key 验证中间件
-function apiKeyAuth(req: Request, res: Response, next: Function) {
+export function apiKeyAuth(req: Request, res: Response, next: Function) {
   const config = store.getConfig()
   if (!config.enableApiKey || !config.apiKeys || config.apiKeys.length === 0) {
     return next()

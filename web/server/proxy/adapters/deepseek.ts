@@ -414,6 +414,7 @@ ${message.content || ''}
     }
 
     let prompt = this.messagesToPrompt(messages, isMultiTurn)
+    console.log(`[DeepSeek] prompt 长度: ${(prompt.length / 1024).toFixed(1)}KB`)
 
     // Use request parameters for mode control (OpenAI compatible)
     let searchEnabled = false
@@ -445,16 +446,20 @@ ${message.content || ''}
       console.log('[DeepSeek] Reasoning mode enabled (from prompt)')
     }
 
+    const reqPayload = {
+      chat_session_id: sessionId,
+      parent_message_id: request.parentMessageId || null,
+      prompt,
+      ref_file_ids: [],
+      search_enabled: searchEnabled,
+      thinking_enabled: thinkingEnabled,
+    }
+    const reqSize = JSON.stringify(reqPayload).length
+    console.log(`[DeepSeek] 请求体大小: ${(reqSize / 1024).toFixed(1)}KB, model: ${request.model}, session: ${sessionId}`)
+
     const response = await axios.post(
       `${DEEPSEEK_API_BASE}/v0/chat/completion`,
-      {
-        chat_session_id: sessionId,
-        parent_message_id: request.parentMessageId || null,
-        prompt,
-        ref_file_ids: [],
-        search_enabled: searchEnabled,
-        thinking_enabled: thinkingEnabled,
-      },
+      reqPayload,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -467,6 +472,8 @@ ${message.content || ''}
         responseType: 'stream',
       }
     )
+
+    console.log(`[DeepSeek] 响应状态: ${response.status}`)
 
     return { response, sessionId }
   }

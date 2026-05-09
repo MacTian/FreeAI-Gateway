@@ -209,6 +209,16 @@ function handleAnthropicStream(openaiRes: Response, anthropicRes: Response, requ
 // POST /v1/messages
 anthropicRouter.post('/messages', apiKeyAuth, async (req: Request, res: Response) => {
   const body = req.body
+  const bodySize = JSON.stringify(body).length
+  console.log(`[Anthropic] 收到请求, body大小: ${(bodySize / 1024).toFixed(1)}KB, messages: ${body.messages?.length || 0}`)
+
+  if (bodySize > 5 * 1024 * 1024) {
+    console.error(`[Anthropic] 请求体过大: ${(bodySize / 1024 / 1024).toFixed(1)}MB`)
+    return res.status(413).json({
+      type: 'error',
+      error: { type: 'invalid_request_error', message: `Request body too large (${(bodySize / 1024 / 1024).toFixed(1)}MB). Maximum is 5MB.` },
+    })
+  }
 
   if (!body.messages || !Array.isArray(body.messages)) {
     return res.status(400).json({
@@ -246,6 +256,11 @@ anthropicRouter.post('/messages', apiKeyAuth, async (req: Request, res: Response
   }
 
   // 记录日志
+  const requestSize = JSON.stringify(body).length
+  console.log(`[Anthropic] 请求体大小: ${(requestSize / 1024).toFixed(1)}KB, model: ${requestModel}`)
+  if (requestSize > 100 * 1024) {
+    console.log(`[Anthropic] 大请求体 - messages count: ${body.messages?.length}, system length: ${typeof body.system === 'string' ? body.system.length : 'N/A'}`)
+  }
   const logId = store.addLogWithId({
     level: 'info',
     message: `[Anthropic] 请求: ${requestModel} → ${target.provider.name}`,
